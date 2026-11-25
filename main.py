@@ -11,10 +11,14 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from About import AboutWindow
+
+
 class HeatTransfer(QWidget):
     # אתחול החלון הראשי
     def __init__(self):
         super().__init__()
+        self.about_window = AboutWindow()
         self.setupUI()
 
     # בניית ממשק המשתמש
@@ -26,6 +30,7 @@ class HeatTransfer(QWidget):
         self.title_label = QLabel("Heat Transfer Simulation")
         self.about_button = QPushButton("About")
         self.about_button.setFixedSize(80, 30)
+        self.about_button.clicked.connect(self.open_about)
 
         header_layout = QHBoxLayout()
         header_layout.addWidget(self.title_label)
@@ -349,6 +354,10 @@ class HeatTransfer(QWidget):
         main_layout.addLayout(lower_layout)
         main_layout.addStretch()
         self.setLayout(main_layout)
+
+    # פתיחת חלון אודות
+    def open_about(self):
+        self.about_window.show()
 
 
 # הפעלת החלון הראשי
