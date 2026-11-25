@@ -16,6 +16,7 @@ from About import AboutWindow
 from Graph import GraphWindow
 from Body import Body
 from HeatFlow import HeatFlowWidget
+from Heater import HeaterWidget
 
 class HeatTransfer(QWidget):
     # אתחול החלון הראשי
@@ -67,7 +68,7 @@ class HeatTransfer(QWidget):
     def setupUI(self):
         self.setObjectName("mainWindow")
         self.setWindowTitle("Heat Transfer Simulation")
-        self.resize(1110, 705)
+        self.resize(1110, 750)
 
         # יצירת כרטיס הכותרת העליון וכפתור אודות
         self.header_card = QWidget()
@@ -132,17 +133,8 @@ class HeatTransfer(QWidget):
             "background-color: rgb(255, 0, 0); color: #FFFFFF; font-size: 21px; font-weight: bold; border-radius: 6px;"
         )
 
-        # יצירת תג חיווי קומפקטי לגוף החימום מתחת לגוף הראשון
-        self.body1_heater_indicator = QLabel("Heater OFF")
-        self.body1_heater_indicator.setObjectName("heaterIndicator")
-        self.body1_heater_indicator.setFixedSize(130, 26)
-        self.body1_heater_indicator.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        body1_heater_row = QHBoxLayout()
-        body1_heater_row.setContentsMargins(0, 0, 0, 0)
-        body1_heater_row.addStretch()
-        body1_heater_row.addWidget(self.body1_heater_indicator)
-        body1_heater_row.addStretch()
+        # יצירת מבער חימום מונפש מתחת לגוף הראשון
+        self.body1_heater = HeaterWidget()
 
         self.body1_slider_label = QLabel("Initial Temperature")
         self.body1_slider_label.setObjectName("secondaryLabel")
@@ -155,12 +147,12 @@ class HeatTransfer(QWidget):
         self.body1_temperature_slider.setRange(0, 200)
         self.body1_temperature_slider.setValue(200)
 
-        # סידור תצוגת הגוף הראשון והסליידר
+        # סידור תצוגת הגוף הראשון, המבער והסליידר
         body1_visual_layout = QVBoxLayout()
-        body1_visual_layout.setSpacing(6)
+        body1_visual_layout.setSpacing(4)
         body1_visual_layout.addWidget(self.body1_title)
         body1_visual_layout.addWidget(self.body1_visual)
-        body1_visual_layout.addLayout(body1_heater_row)
+        body1_visual_layout.addWidget(self.body1_heater)
         body1_visual_layout.addStretch()
 
         body1_slider_row = QHBoxLayout()
@@ -243,17 +235,8 @@ class HeatTransfer(QWidget):
             "background-color: rgb(0, 0, 0); color: #FFFFFF; font-size: 21px; font-weight: bold; border-radius: 6px;"
         )
 
-        # יצירת תג חיווי קומפקטי לגוף החימום מתחת לגוף השני
-        self.body2_heater_indicator = QLabel("Heater OFF")
-        self.body2_heater_indicator.setObjectName("heaterIndicator")
-        self.body2_heater_indicator.setFixedSize(130, 26)
-        self.body2_heater_indicator.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        body2_heater_row = QHBoxLayout()
-        body2_heater_row.setContentsMargins(0, 0, 0, 0)
-        body2_heater_row.addStretch()
-        body2_heater_row.addWidget(self.body2_heater_indicator)
-        body2_heater_row.addStretch()
+        # יצירת מבער חימום מונפש מתחת לגוף השני
+        self.body2_heater = HeaterWidget()
 
         self.body2_slider_label = QLabel("Initial Temperature")
         self.body2_slider_label.setObjectName("secondaryLabel")
@@ -266,12 +249,12 @@ class HeatTransfer(QWidget):
         self.body2_temperature_slider.setRange(0, 200)
         self.body2_temperature_slider.setValue(0)
 
-        # סידור תצוגת הגוף השני והסליידר
+        # סידור תצוגת הגוף השני, המבער והסליידר
         body2_visual_layout = QVBoxLayout()
-        body2_visual_layout.setSpacing(6)
+        body2_visual_layout.setSpacing(4)
         body2_visual_layout.addWidget(self.body2_title)
         body2_visual_layout.addWidget(self.body2_visual)
-        body2_visual_layout.addLayout(body2_heater_row)
+        body2_visual_layout.addWidget(self.body2_heater)
         body2_visual_layout.addStretch()
 
         body2_slider_row = QHBoxLayout()
@@ -743,38 +726,13 @@ class HeatTransfer(QWidget):
         if self.timer.isActive():
             self.timer.setInterval(self.timer_interval)
 
-    # עדכון עיצוב וטקסט תג גוף החימום לפי ההספק ומצב הסימולציה
-    def update_heater_badge(self, indicator, power):
-        if power <= 0:
-            indicator.setText("Heater OFF")
-            indicator.setStyleSheet("")
-        elif self.start_button.isChecked():
-            indicator.setText(f"Heating {power:.1f} W")
-            indicator.setStyleSheet(
-                "background-color: #F59E0B; color: #23364D; border: 1px solid #D97706; border-radius: 13px; font-size: 11px; font-weight: bold;"
-            )
-        else:
-            indicator.setText(f"Heater Set: {power:.1f} W")
-            indicator.setStyleSheet(
-                "background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; border-radius: 13px; font-size: 11px; font-weight: 600;"
-            )
-
-    # עדכון שני תגי גופי החימום בהתאם לערכים הנוכחיים
-    def update_heater_indicators(self):
-        self.update_heater_badge(
-            self.body1_heater_indicator, self.body1_heating_power_input.value()
-        )
-        self.update_heater_badge(
-            self.body2_heater_indicator, self.body2_heating_power_input.value()
-        )
-
-    # עדכון חיווי גוף החימום של הגוף הראשון
+    # עדכון הספק החימום המוגדר ברכיב המבער של הגוף הראשון
     def body1_heating_power_changed(self, power):
-        self.update_heater_badge(self.body1_heater_indicator, power)
+        self.body1_heater.set_heating_power(power)
 
-    # עדכון חיווי גוף החימום של הגוף השני
+    # עדכון הספק החימום המוגדר ברכיב המבער של הגוף השני
     def body2_heating_power_changed(self, power):
-        self.update_heater_badge(self.body2_heater_indicator, power)
+        self.body2_heater.set_heating_power(power)
 
     # עדכון תצוגת קצב מעבר החום, קטגוריית העוצמה ורכיב האנימציה
     def update_heat_flow_display(self, q_rate, is_running):
@@ -960,20 +918,22 @@ class HeatTransfer(QWidget):
 
             self.timer.start(self.timer_interval)
 
-            # חישוב קצב מעבר החום ההתחלתי והפעלת האנימציה ותגי החימום
+            # חישוב קצב מעבר החום ההתחלתי והפעלת האנימציה
             q_rate = self.conductance * (
                 self.body1.temperature - self.body2.temperature
             )
             self.update_heat_flow_display(q_rate, True)
             self.connector.start_animation()
-            self.update_heater_indicators()
+            self.body1_heater.start_animation()
+            self.body2_heater.start_animation()
 
         else:  # עצירת הסימולציה
             self.timer.stop()
             self.reset_temperature_trends()
             self.connector.stop_animation()
+            self.body1_heater.stop_animation()
+            self.body2_heater.stop_animation()
             self.update_heat_flow_display(0.0, False)
-            self.update_heater_indicators()
             self.start_button.setText("Start")
             self.status_label.setText("Stopped")
             self.status_label.setStyleSheet(
@@ -1178,12 +1138,15 @@ class HeatTransfer(QWidget):
         self.status_label.setStyleSheet("")
         self.reset_temperature_trends()
         self.connector.reset_animation()
+        self.body1_heater.reset_animation()
+        self.body2_heater.reset_animation()
         self.update_heat_flow_display(0.0, False)
-        self.update_heater_indicators()
 
-    # עצירת טיימר האנימציה בעת סגירת החלון הראשי
+    # עצירת טיימרי האנימציה בעת סגירת החלון הראשי
     def closeEvent(self, event):
         self.connector.stop_animation()
+        self.body1_heater.stop_animation()
+        self.body2_heater.stop_animation()
         super().closeEvent(event)
 
 # הפעלת החלון הראשי וטעינת קובץ העיצוב
