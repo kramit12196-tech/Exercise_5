@@ -1,5 +1,5 @@
 # יצירת ממשק המשתמש עם רכיבי PySide6
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QApplication,
     QDoubleSpinBox,
@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
 
 from About import AboutWindow
 from Graph import GraphWindow
-
+from Body import Body
 
 class HeatTransfer(QWidget):
     # אתחול החלון הראשי
@@ -21,12 +21,19 @@ class HeatTransfer(QWidget):
         super().__init__()
         self.about_window = AboutWindow()
         self.graph_window = GraphWindow(self)
+        
+        self.dt = 0.1  # הגדרת פרק הזמן בין עדכוני הטמפרטורה
+        self.elapsed_time = 0.0
+        self.temperature_tolerance = 0.1
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.timer_method)
+        
         self.setupUI()
 
     # בניית ממשק המשתמש
     def setupUI(self):
         self.setWindowTitle("Heat Transfer Simulation")
-        self.resize(980, 470)
+        self.resize(1060, 500)
 
         # יצירת הכותרת וכפתור אודות
         self.title_label = QLabel("Heat Transfer Simulation")
@@ -242,20 +249,71 @@ class HeatTransfer(QWidget):
         body1_layout.addLayout(body1_heat_capacity_layout)
         body1_layout.addStretch()
 
-        # יצירת הכפתורים המרכזיים בחלק התחתון
+        # יצירת כפתור ההפעלה ותצוגת זמן הסימולציה
         self.start_button = QPushButton("Start")
         self.start_button.setFixedSize(145, 38)
         self.start_button.setCheckable(True)
+        self.start_button.toggled.connect(self.start_stop_button_method)
+
+        self.simulation_time_title = QLabel("Simulation Time")
+        self.simulation_time_title.setFixedSize(115, 22)
+        self.simulation_time_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.simulation_time_display = QLabel("0.0 s")
+        self.simulation_time_display.setFixedSize(85, 30)
+        self.simulation_time_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.simulation_time_display.setStyleSheet(
+            "background-color: white; border: 1px solid gray;"
+        )
+
+        # סידור תצוגת זמן הסימולציה ליד כפתור ההפעלה
+        simulation_time_display_row = QHBoxLayout()
+        simulation_time_display_row.addStretch()
+        simulation_time_display_row.addWidget(self.simulation_time_display)
+        simulation_time_display_row.addStretch()
+
+        simulation_time_layout = QVBoxLayout()
+        simulation_time_layout.setSpacing(4)
+        simulation_time_layout.addWidget(self.simulation_time_title)
+        simulation_time_layout.addLayout(simulation_time_display_row)
+
+        start_button_layout = QVBoxLayout()
+        start_button_layout.addSpacing(18)
+        start_button_layout.addWidget(self.start_button)
+
+        start_row_layout = QHBoxLayout()
+        start_row_layout.setSpacing(12)
+        start_row_layout.addLayout(start_button_layout)
+        start_row_layout.addLayout(simulation_time_layout)
+
+        # יצירת כפתור הגרפים מתחת לכפתור ההפעלה
         self.graphs_button = QPushButton("Graphs")
         self.graphs_button.setFixedSize(145, 38)
         self.graphs_button.clicked.connect(self.open_graphs)
 
+        graphs_row_layout = QHBoxLayout()
+        graphs_row_layout.addStretch()
+        graphs_row_layout.addWidget(self.graphs_button)
+        graphs_row_layout.addStretch()
+
+        # יצירת כפתור איפוס לברירת מחדל
+        self.reset_button = QPushButton("Reset Defaults")
+        self.reset_button.setFixedSize(145, 38)
+
+        reset_row_layout = QHBoxLayout()
+        reset_row_layout.addStretch()
+        reset_row_layout.addWidget(self.reset_button)
+        reset_row_layout.addStretch()
+
         center_layout = QVBoxLayout()
         center_layout.setSpacing(14)
-        center_layout.addSpacing(36)
-        center_layout.addWidget(self.start_button)
-        center_layout.addWidget(self.graphs_button)
+        center_layout.addSpacing(10)
+        center_layout.addLayout(start_row_layout)
+        center_layout.addLayout(graphs_row_layout)
+        center_layout.addLayout(reset_row_layout)
         center_layout.addStretch()
+
+        self.reset_button.clicked.connect(self.reset_defaults)
 
         # יצירת כותרת ותוויות הנתונים של הגוף השני
         self.body2_parameters_title = QLabel("Body 2 Parameters")
@@ -342,9 +400,9 @@ class HeatTransfer(QWidget):
         lower_layout.setSpacing(0)
         lower_layout.addStretch()
         lower_layout.addLayout(body1_layout)
-        lower_layout.addSpacing(40)
+        lower_layout.addSpacing(35)
         lower_layout.addLayout(center_layout)
-        lower_layout.addSpacing(40)
+        lower_layout.addSpacing(35)
         lower_layout.addLayout(body2_layout)
         lower_layout.addStretch()
 
@@ -364,14 +422,97 @@ class HeatTransfer(QWidget):
 
     # עדכון הטמפרטורה והצבע של הגוף השמאלי
     def left_temperature_changed(self, temperature):
-        self.body1_temperature_display.setText(str(temperature))
+        self.body1_temperature_display.setText(f"{temperature:.2f}")
         red = int(temperature / 200 * 255)
         self.body1_visual.setStyleSheet(f"background-color: rgb({red}, 0, 0);")
 
     def right_temperature_changed(self, temperature):
-        self.body2_temperature_display.setText(str(temperature))
+        self.body2_temperature_display.setText(f"{temperature:.2f}")
         red = int(temperature / 200 * 255)
         self.body2_visual.setStyleSheet(f"background-color: rgb({red}, 0, 0);")
+
+        # הפעלה ועצירה של הסימולציה
+    def start_stop_button_method(self):
+
+        if self.start_button.isChecked(): # הפעלת הסימולציה
+            self.elapsed_time = 0.0
+            self.simulation_time_title.setText("Simulation Time")
+            self.simulation_time_display.setText("0.0 s")
+            
+            self.body1 = Body(self.body1_mass_input.value(), self.body1_heat_capacity_input.value(), self.body1_temperature_slider.value())
+            self.body2 = Body(self.body2_mass_input.value(), self.body2_heat_capacity_input.value(), self.body2_temperature_slider.value())
+
+            self.conductance = self.conductance_input.value()
+
+            self.start_button.setText("Stop")
+            # נעילת פקדי הקלט בזמן הרצת הסימולציה
+            self.body1_temperature_slider.setEnabled(False)
+            self.body2_temperature_slider.setEnabled(False)
+
+            self.body1_mass_input.setEnabled(False)
+            self.body2_mass_input.setEnabled(False)
+
+            self.body1_heat_capacity_input.setEnabled(False)
+            self.body2_heat_capacity_input.setEnabled(False)
+
+            self.conductance_input.setEnabled(False)
+
+            self.timer.start(100)
+        
+        else:  # עצירת הסימולציה
+            self.timer.stop()
+            self.start_button.setText("Start")
+
+            # שחרור פקדי הקלט לאחר עצירת הסימולציה
+            self.body1_temperature_slider.setEnabled(True)
+            self.body2_temperature_slider.setEnabled(True)
+
+            self.body1_mass_input.setEnabled(True)
+            self.body2_mass_input.setEnabled(True)
+
+            self.body1_heat_capacity_input.setEnabled(True)
+            self.body2_heat_capacity_input.setEnabled(True)
+
+            self.conductance_input.setEnabled(True)
+
+        # חישוב קיבול החום הכולל של כל גוף
+        c1 = self.body1.mass * self.body1.heat_capacity
+        c2 = self.body2.mass * self.body2.heat_capacity
+
+        max_dt = (c1 * c2) / (self.conductance * (c1 + c2)) # חישוב צעד הזמן המרבי
+
+        self.dt = 0.1 # התאמת צעד הזמן לנתוני הסימולציה
+
+        if self.dt > max_dt:
+                self.dt = max_dt
+
+    def timer_method(self):
+        t1 = self.body1.temperature
+        t2 = self.body2.temperature
+
+        i1 = self.conductance * (t2 - t1)
+        i2 = self.conductance * (t1 - t2)
+
+        q1 = i1 * self.dt
+        q2 = i2 * self.dt
+
+        new_t1 = self.body1.add_heat(q1)
+        new_t2 = self.body2.add_heat(q2)
+
+        self.body1_temperature_slider.setValue(int(new_t1))
+        self.body2_temperature_slider.setValue(int(new_t2))
+
+        self.left_temperature_changed(new_t1)
+        self.right_temperature_changed(new_t2)
+
+        self.elapsed_time += self.dt
+        self.simulation_time_display.setText(f"{self.elapsed_time:.1f} s")
+
+        temperature_difference = new_t1 - new_t2
+
+        if temperature_difference <= self.temperature_tolerance and temperature_difference >= -self.temperature_tolerance:
+            self.start_button.setChecked(False)
+            self.simulation_time_title.setText("Equilibrium Time")
 
     # פתיחת חלון אודות
     def open_about(self):
@@ -381,6 +522,34 @@ class HeatTransfer(QWidget):
     def open_graphs(self):
         self.graph_window.show()
 
+    # איפוס נתוני הסימולציה לערכי ברירת המחדל
+    def reset_defaults(self):
+
+        self.start_button.setChecked(False)  # עצירת הסימולציה
+
+        # איפוס הטמפרטורות
+        self.body1_temperature_slider.setValue(200)
+        self.body2_temperature_slider.setValue(0)
+
+        # איפוס המסות
+        self.body1_mass_input.setValue(10.0)
+        self.body2_mass_input.setValue(10.0)
+
+        # איפוס קיבולי החום הסגוליים
+        self.body1_heat_capacity_input.setValue(0.40)
+        self.body2_heat_capacity_input.setValue(0.40)
+
+        # איפוס מקדם מעבר החום
+        self.conductance_input.setValue(1.0)
+
+        # עדכון תצוגת הטמפרטורות והצבעים
+        self.left_temperature_changed(200)
+        self.right_temperature_changed(0)
+
+        # איפוס זמן הסימולציה
+        self.elapsed_time = 0.0
+        self.simulation_time_title.setText("Simulation Time")
+        self.simulation_time_display.setText("0.0 s")
 
 # הפעלת החלון הראשי
 if __name__ == "__main__":
