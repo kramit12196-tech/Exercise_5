@@ -41,6 +41,19 @@ class HeatTransfer(QWidget):
             "Glass": 840.0,
         }
         
+        # הגדרת מרווחי הטיימר במילישניות לפי מהירות הסימולציה
+        self.speed_intervals = {
+            "1x": 100,
+            "2x": 50,
+            "5x": 20,
+            "10x": 10,
+            "20x": 5,
+            "50x": 2,
+            "100x": 1,
+        }
+        self.timer_interval = 100
+        self.timer.setInterval(self.timer_interval)
+        
         self.setupUI()
 
         # יצירת רשימות לשמירת נתוני הסימולציה
@@ -323,44 +336,66 @@ class HeatTransfer(QWidget):
         body1_layout.addLayout(body1_heating_power_layout)
         body1_layout.addStretch()
 
-        # יצירת כפתור ההפעלה ותצוגת זמן הסימולציה
-        self.start_button = QPushButton("Start")
-        self.start_button.setFixedSize(145, 38)
-        self.start_button.setCheckable(True)
-        self.start_button.toggled.connect(self.start_stop_button_method)
-
+        # יצירת תצוגת זמן הסימולציה ובחירת המהירות בשורה אחת
         self.simulation_time_title = QLabel("Simulation Time")
-        self.simulation_time_title.setFixedSize(115, 22)
+        self.simulation_time_title.setFixedSize(120, 30)
         self.simulation_time_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.simulation_time_display = QLabel("0.0 s")
-        self.simulation_time_display.setFixedSize(85, 30)
+        self.simulation_time_display.setFixedSize(120, 30)
         self.simulation_time_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.simulation_time_display.setStyleSheet(
             "background-color: white; border: 1px solid gray;"
         )
 
-        # סידור תצוגת זמן הסימולציה ליד כפתור ההפעלה
-        simulation_time_display_row = QHBoxLayout()
-        simulation_time_display_row.addStretch()
-        simulation_time_display_row.addWidget(self.simulation_time_display)
-        simulation_time_display_row.addStretch()
-
         simulation_time_layout = QVBoxLayout()
         simulation_time_layout.setSpacing(4)
         simulation_time_layout.addWidget(self.simulation_time_title)
-        simulation_time_layout.addLayout(simulation_time_display_row)
+        simulation_time_layout.addWidget(self.simulation_time_display)
 
-        start_button_layout = QVBoxLayout()
-        start_button_layout.addSpacing(18)
-        start_button_layout.addWidget(self.start_button)
+        self.simulation_speed_title = QLabel("Simulation Speed")
+        self.simulation_speed_title.setFixedSize(75, 30)
+        self.simulation_speed_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.simulation_speed_title.setWordWrap(True)
+
+        self.simulation_speed_selector = QComboBox()
+        self.simulation_speed_selector.setFixedSize(70, 30)
+        self.simulation_speed_selector.addItems(
+            ["1x", "2x", "5x", "10x", "20x", "50x", "100x"]
+        )
+        self.simulation_speed_selector.setCurrentText("1x")
+        self.simulation_speed_selector.currentTextChanged.connect(
+            self.simulation_speed_changed
+        )
+
+        simulation_speed_selector_row = QHBoxLayout()
+        simulation_speed_selector_row.addStretch()
+        simulation_speed_selector_row.addWidget(self.simulation_speed_selector)
+        simulation_speed_selector_row.addStretch()
+
+        simulation_speed_layout = QVBoxLayout()
+        simulation_speed_layout.setSpacing(4)
+        simulation_speed_layout.addWidget(self.simulation_speed_title)
+        simulation_speed_layout.addLayout(simulation_speed_selector_row)
+
+        time_speed_row_layout = QHBoxLayout()
+        time_speed_row_layout.setSpacing(10)
+        time_speed_row_layout.addStretch()
+        time_speed_row_layout.addLayout(simulation_time_layout)
+        time_speed_row_layout.addLayout(simulation_speed_layout)
+        time_speed_row_layout.addStretch()
+
+        # יצירת כפתורי השליטה המרכזיים מתחת לשורת הזמן והמהירות
+        self.start_button = QPushButton("Start")
+        self.start_button.setFixedSize(145, 38)
+        self.start_button.setCheckable(True)
+        self.start_button.toggled.connect(self.start_stop_button_method)
 
         start_row_layout = QHBoxLayout()
-        start_row_layout.setSpacing(12)
-        start_row_layout.addLayout(start_button_layout)
-        start_row_layout.addLayout(simulation_time_layout)
+        start_row_layout.addStretch()
+        start_row_layout.addWidget(self.start_button)
+        start_row_layout.addStretch()
 
-        # יצירת כפתור הגרפים מתחת לכפתור ההפעלה
         self.graphs_button = QPushButton("Graphs")
         self.graphs_button.setFixedSize(145, 38)
         self.graphs_button.clicked.connect(self.open_graphs)
@@ -370,24 +405,25 @@ class HeatTransfer(QWidget):
         graphs_row_layout.addWidget(self.graphs_button)
         graphs_row_layout.addStretch()
 
-        # יצירת כפתור איפוס לברירת מחדל
         self.reset_button = QPushButton("Reset Defaults")
         self.reset_button.setFixedSize(145, 38)
+        self.reset_button.clicked.connect(self.reset_defaults)
 
         reset_row_layout = QHBoxLayout()
         reset_row_layout.addStretch()
         reset_row_layout.addWidget(self.reset_button)
         reset_row_layout.addStretch()
 
+        # סידור האזור המרכזי
         center_layout = QVBoxLayout()
-        center_layout.setSpacing(14)
-        center_layout.addSpacing(34)
+        center_layout.setSpacing(10)
+        center_layout.addSpacing(4)
+        center_layout.addLayout(time_speed_row_layout)
+        center_layout.addSpacing(4)
         center_layout.addLayout(start_row_layout)
         center_layout.addLayout(graphs_row_layout)
         center_layout.addLayout(reset_row_layout)
         center_layout.addStretch()
-
-        self.reset_button.clicked.connect(self.reset_defaults)
 
         # יצירת כותרת ותוויות הנתונים של הגוף השני
         self.body2_parameters_title = QLabel("Body 2 (Custom) Parameters")
@@ -541,6 +577,12 @@ class HeatTransfer(QWidget):
         # חיבור שדות הספק החימום לעדכון חיווי גופי החימום
         self.body1_heating_power_input.valueChanged.connect(self.body1_heating_power_changed)
         self.body2_heating_power_input.valueChanged.connect(self.body2_heating_power_changed)
+
+    # עדכון מהירות הסימולציה באמצעות שינוי מרווח הטיימר
+    def simulation_speed_changed(self, speed):
+        self.timer_interval = self.speed_intervals[speed]
+        if self.timer.isActive():
+            self.timer.setInterval(self.timer_interval)
 
     # עדכון חיווי גוף החימום של הגוף הראשון
     def body1_heating_power_changed(self, power):
@@ -708,7 +750,7 @@ class HeatTransfer(QWidget):
             if self.dt > max_dt:
                 self.dt = max_dt
 
-            self.timer.start(100)
+            self.timer.start(self.timer_interval)
 
         else:  # עצירת הסימולציה
             self.timer.stop()
@@ -860,10 +902,12 @@ class HeatTransfer(QWidget):
         self.left_temperature_changed(200)
         self.right_temperature_changed(0)
 
-        # איפוס זמן הסימולציה
+        # איפוס זמן ומהירות הסימולציה
         self.elapsed_time = 0.0
         self.simulation_time_title.setText("Simulation Time")
         self.simulation_time_display.setText("0.0 s")
+        self.simulation_speed_selector.setCurrentText("1x")
+        self.simulation_speed_changed("1x")
 
 # הפעלת החלון הראשי
 if __name__ == "__main__":
