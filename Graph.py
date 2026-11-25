@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QPushButton,
+    QTabWidget,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -26,9 +27,22 @@ class GraphWindow(QWidget):
         self.main_window = main_window
         self.export_window = ExportWindow(self.main_window, self)
 
-        # מעקב אחר הגופים המוצגים כעת בגרף
+        # מעקב אחר העקומות המוצגות כעת בכל לשונית
         self.body1_displayed = False
         self.body2_displayed = False
+        self.rate_displayed_simulations = []
+        self.cumulative_displayed_simulations = []
+
+        # רשימות צבעים וסגנונות קו אחידים לפי מספר הסימולציה
+        self.simulation_colors = [
+            "#0D9488",
+            "#7C3AED",
+            "#EA580C",
+            "#2871B8",
+            "#DC2626",
+            "#64748B",
+        ]
+        self.simulation_linestyles = ["-", "--", "-.", ":"]
 
         self.setupUI()
 
@@ -60,18 +74,14 @@ class GraphWindow(QWidget):
         header_layout.addStretch()
         self.header_card.setLayout(header_layout)
 
-        # יצירת כרטיס הגרף בצד שמאל
-        self.plot_card = QWidget()
-        self.plot_card.setObjectName("graphPlotCard")
+        # יצירת אזור הלשוניות לשלושת הגרפים בצד שמאל
+        self.graph_tabs = QTabWidget()
+        self.graph_tabs.setObjectName("graphTabs")
 
-        self.plot_section_title = QLabel("Temperature Analysis")
-        self.plot_section_title.setObjectName("sectionTitle")
+        # לשונית 1: גרף טמפרטורה מול זמן
+        self.temperature_tab = QWidget()
+        self.temperature_tab.setObjectName("graphTabPage")
 
-        plot_divider = QWidget()
-        plot_divider.setObjectName("dividerLine")
-        plot_divider.setFixedHeight(1)
-
-        # יצירת אזור הגרף, סרגל הניווט והגדרת עיצוב הצירים
         self.figure = Figure(figsize=(8, 3.3))
         self.canvas = FigureCanvasQTAgg(self.figure)
         self.ax = self.figure.add_subplot(111)
@@ -80,14 +90,68 @@ class GraphWindow(QWidget):
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
         self.toolbar.setObjectName("graphToolbar")
 
-        plot_card_layout = QVBoxLayout()
-        plot_card_layout.setContentsMargins(16, 12, 16, 10)
-        plot_card_layout.setSpacing(6)
-        plot_card_layout.addWidget(self.plot_section_title)
-        plot_card_layout.addWidget(plot_divider)
-        plot_card_layout.addWidget(self.canvas, 1)
-        plot_card_layout.addWidget(self.toolbar)
-        self.plot_card.setLayout(plot_card_layout)
+        temperature_tab_layout = QVBoxLayout()
+        temperature_tab_layout.setContentsMargins(14, 10, 14, 10)
+        temperature_tab_layout.setSpacing(6)
+        temperature_tab_layout.addWidget(self.canvas, 1)
+        temperature_tab_layout.addWidget(self.toolbar)
+        self.temperature_tab.setLayout(temperature_tab_layout)
+
+        # לשונית 2: גרף קצב מעבר חום מול זמן
+        self.rate_tab = QWidget()
+        self.rate_tab.setObjectName("graphTabPage")
+
+        self.rate_figure = Figure(figsize=(8, 3.3))
+        self.rate_canvas = FigureCanvasQTAgg(self.rate_figure)
+        self.rate_ax = self.rate_figure.add_subplot(111)
+        self.style_axes(
+            "Heat Transfer Rate vs. Time",
+            self.rate_ax,
+            self.rate_figure,
+            "Heat Transfer Rate (W)",
+        )
+
+        self.rate_toolbar = NavigationToolbar2QT(self.rate_canvas, self)
+        self.rate_toolbar.setObjectName("graphToolbar")
+
+        rate_tab_layout = QVBoxLayout()
+        rate_tab_layout.setContentsMargins(14, 10, 14, 10)
+        rate_tab_layout.setSpacing(6)
+        rate_tab_layout.addWidget(self.rate_canvas, 1)
+        rate_tab_layout.addWidget(self.rate_toolbar)
+        self.rate_tab.setLayout(rate_tab_layout)
+
+        # לשונית 3: גרף מעבר חום מצטבר מול זמן
+        self.cumulative_tab = QWidget()
+        self.cumulative_tab.setObjectName("graphTabPage")
+
+        self.cumulative_figure = Figure(figsize=(8, 3.3))
+        self.cumulative_canvas = FigureCanvasQTAgg(self.cumulative_figure)
+        self.cumulative_ax = self.cumulative_figure.add_subplot(111)
+        self.style_axes(
+            "Cumulative Heat Transfer vs. Time",
+            self.cumulative_ax,
+            self.cumulative_figure,
+            "Transferred Energy (kJ)",
+        )
+
+        self.cumulative_toolbar = NavigationToolbar2QT(
+            self.cumulative_canvas, self
+        )
+        self.cumulative_toolbar.setObjectName("graphToolbar")
+
+        cumulative_tab_layout = QVBoxLayout()
+        cumulative_tab_layout.setContentsMargins(14, 10, 14, 10)
+        cumulative_tab_layout.setSpacing(6)
+        cumulative_tab_layout.addWidget(self.cumulative_canvas, 1)
+        cumulative_tab_layout.addWidget(self.cumulative_toolbar)
+        self.cumulative_tab.setLayout(cumulative_tab_layout)
+
+        # הוספת שלוש הלשוניות הקבועות וקביעת ברירת המחדל
+        self.graph_tabs.addTab(self.temperature_tab, "Temperature")
+        self.graph_tabs.addTab(self.rate_tab, "Heat Transfer Rate")
+        self.graph_tabs.addTab(self.cumulative_tab, "Cumulative Heat Transfer")
+        self.graph_tabs.setCurrentIndex(0)
 
         # יצירת כרטיס הבקרה בצד ימין
         self.controls_card = QWidget()
@@ -124,6 +188,9 @@ class GraphWindow(QWidget):
         self.body_selector.addItems(["Body 1", "Body 2"])
         self.body_selector.setCurrentText("Body 1")
 
+        # חיבור שינוי לשונית לעדכון זמינות בחירת הגוף
+        self.graph_tabs.currentChanged.connect(self.tab_changed)
+
         # יצירת כפתור שרטוט
         self.draw_button = QPushButton("Draw")
         self.draw_button.setObjectName("drawButton")
@@ -143,6 +210,67 @@ class GraphWindow(QWidget):
         self.export_button.setFixedSize(214, 38)
         self.export_button.clicked.connect(self.open_export_window)
 
+        # יצירת אזור המשוואה השולטת מתחת לכפתור הייצוא
+        equation_divider = QWidget()
+        equation_divider.setObjectName("dividerLine")
+        equation_divider.setFixedHeight(1)
+
+        self.equation_heading = QLabel("Governing Equation")
+        self.equation_heading.setObjectName("equationHeading")
+        self.equation_heading.setFixedHeight(22)
+        self.equation_heading.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.equation_card = QWidget()
+        self.equation_card.setObjectName("equationCard")
+        self.equation_card.setFixedWidth(214)
+
+        self.equation_subheading1 = QLabel()
+        self.equation_subheading1.setObjectName("equationSubheading")
+        self.equation_subheading1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # קנבס Matplotlib ייעודי להצגת המשוואה הראשונה באיכות גבוהה
+        self.equation_figure1 = Figure()
+        self.equation_canvas1 = FigureCanvasQTAgg(self.equation_figure1)
+        self.equation_ax1 = self.equation_figure1.add_subplot(111)
+        self.equation_canvas1.setFixedWidth(190)
+
+        self.equation_mid_divider = QWidget()
+        self.equation_mid_divider.setObjectName("dividerLine")
+        self.equation_mid_divider.setFixedHeight(1)
+
+        self.equation_subheading2 = QLabel()
+        self.equation_subheading2.setObjectName("equationSubheading")
+        self.equation_subheading2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # קנבס Matplotlib ייעודי להצגת המשוואה השנייה במידת הצורך
+        self.equation_figure2 = Figure()
+        self.equation_canvas2 = FigureCanvasQTAgg(self.equation_figure2)
+        self.equation_ax2 = self.equation_figure2.add_subplot(111)
+        self.equation_canvas2.setFixedWidth(190)
+
+        equation_inner_divider = QWidget()
+        equation_inner_divider.setObjectName("dividerLine")
+        equation_inner_divider.setFixedHeight(1)
+
+        self.equation_explanation_label = QLabel()
+        self.equation_explanation_label.setObjectName("equationExplanation")
+        self.equation_explanation_label.setAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+        )
+        self.equation_explanation_label.setWordWrap(True)
+
+        equation_card_layout = QVBoxLayout()
+        equation_card_layout.setContentsMargins(12, 10, 12, 10)
+        equation_card_layout.setSpacing(6)
+        equation_card_layout.addWidget(self.equation_subheading1)
+        equation_card_layout.addWidget(self.equation_canvas1)
+        equation_card_layout.addWidget(self.equation_mid_divider)
+        equation_card_layout.addWidget(self.equation_subheading2)
+        equation_card_layout.addWidget(self.equation_canvas2)
+        equation_card_layout.addWidget(equation_inner_divider)
+        equation_card_layout.addWidget(self.equation_explanation_label)
+        self.equation_card.setLayout(equation_card_layout)
+
         # סידור רכיבי הבקרה בתוך כרטיס הבקרה
         controls_layout = QVBoxLayout()
         controls_layout.setContentsMargins(18, 12, 18, 14)
@@ -159,13 +287,20 @@ class GraphWindow(QWidget):
         controls_layout.addWidget(self.draw_button)
         controls_layout.addWidget(self.clear_button)
         controls_layout.addWidget(self.export_button)
+        controls_layout.addSpacing(8)
+        controls_layout.addWidget(equation_divider)
+        controls_layout.addWidget(self.equation_heading)
+        controls_layout.addWidget(self.equation_card)
         controls_layout.addStretch()
         self.controls_card.setLayout(controls_layout)
 
-        # סידור אזור הגרף והבקרה בשורה העליונה
+        # הצגת משוואת ברירת המחדל עבור לשונית הטמפרטורה
+        self.update_equation_display(0)
+
+        # סידור אזור הגרפים והבקרה בשורה העליונה
         top_content_layout = QHBoxLayout()
         top_content_layout.setSpacing(14)
-        top_content_layout.addWidget(self.plot_card, 1)
+        top_content_layout.addWidget(self.graph_tabs, 1)
         top_content_layout.addWidget(self.controls_card)
 
         # יצירת כרטיס טבלת פרמטרי הסימולציה
@@ -277,25 +412,161 @@ class GraphWindow(QWidget):
         self.setLayout(main_layout)
 
     # עיצוב אחיד לצירים, כותרות ורשת הגרף
-    def style_axes(self, title):
-        self.figure.set_facecolor("#FFFFFF")
-        self.ax.set_facecolor("#FFFFFF")
-        self.ax.set_title(
+    def style_axes(
+        self, title, ax=None, figure=None, ylabel="Temperature (°C)"
+    ):
+        if ax is None:
+            ax = self.ax
+        if figure is None:
+            figure = self.figure
+
+        figure.set_facecolor("#FFFFFF")
+        ax.set_facecolor("#FFFFFF")
+        ax.set_title(
             title, color="#23364D", fontsize=13, fontweight="bold", pad=12
         )
-        self.ax.set_xlabel("Time (s)", color="#23364D", fontsize=11)
-        self.ax.set_ylabel("Temperature (°C)", color="#23364D", fontsize=11)
-        self.ax.grid(True, linestyle="--", color="#E2E8F0")
-        self.ax.tick_params(colors="#64748B", labelsize=10)
+        ax.set_xlabel("Time (s)", color="#23364D", fontsize=11)
+        ax.set_ylabel(ylabel, color="#23364D", fontsize=11)
+        ax.grid(True, linestyle="--", color="#E2E8F0")
+        ax.tick_params(colors="#64748B", labelsize=10)
 
         # עיצוב גבולות הצירים בגוון עדין
-        self.ax.spines["top"].set_color("#E2E8F0")
-        self.ax.spines["right"].set_color("#E2E8F0")
-        self.ax.spines["left"].set_color("#CBD5E1")
-        self.ax.spines["bottom"].set_color("#CBD5E1")
-        self.figure.subplots_adjust(left=0.09, right=0.97, top=0.86, bottom=0.19)
+        ax.spines["top"].set_color("#E2E8F0")
+        ax.spines["right"].set_color("#E2E8F0")
+        ax.spines["left"].set_color("#CBD5E1")
+        ax.spines["bottom"].set_color("#CBD5E1")
+        figure.subplots_adjust(left=0.10, right=0.97, top=0.88, bottom=0.17)
 
-    # הוספת עקומת הגוף שנבחר לגרף ללא מחיקת עקומות קיימות
+    # עדכון זמינות בחירת הגוף ותצוגת המשוואה בעת מעבר בין לשוניות הגרפים
+    def tab_changed(self, index):
+        self.body_selector.setEnabled(index == 0)
+        self.update_equation_display(index)
+
+    # הצגת נוסחה מתמטית ממורכזת באמצעות Matplotlib MathText
+    def render_equation(self, ax, figure, canvas, latex_text, fontsize, height):
+        canvas.setFixedHeight(height)
+        figure.set_facecolor("#F5F8FB")
+        ax.clear()
+        ax.set_facecolor("#F5F8FB")
+        ax.axis("off")
+        figure.subplots_adjust(left=0.0, right=1.0, top=1.0, bottom=0.0)
+        ax.text(
+            0.5,
+            0.5,
+            latex_text,
+            ha="center",
+            va="center",
+            fontsize=fontsize,
+            color="#23364D",
+            math_fontfamily="cm",
+            transform=ax.transAxes,
+        )
+        canvas.draw()
+
+    # עדכון תצוגת המשוואה השולטת לפי הלשונית הפעילה
+    def update_equation_display(self, index):
+        if index == 0:
+            self.equation_subheading1.setText("Temperature Change")
+            self.equation_subheading1.setVisible(True)
+            self.render_equation(
+                self.equation_ax1,
+                self.equation_figure1,
+                self.equation_canvas1,
+                r"$\Delta T = \frac{\Delta Q}{m \cdot c}$",
+                17,
+                58,
+            )
+
+            self.equation_mid_divider.setVisible(False)
+            self.equation_subheading2.setVisible(False)
+            self.equation_canvas2.setVisible(True)
+            self.render_equation(
+                self.equation_ax2,
+                self.equation_figure2,
+                self.equation_canvas2,
+                r"$T_{\mathrm{new}} = T + \Delta T$",
+                15,
+                36,
+            )
+
+            explanation = (
+                "<p style='margin:0px 0px 4px 0px;'>"
+                "<b style='color:#23364D;'>m</b> &mdash; Mass (kg)</p>"
+                "<p style='margin:0px 0px 4px 0px;'>"
+                "<b style='color:#23364D;'>c</b> &mdash; Specific heat capacity "
+                "(J/(kg&middot;&deg;C))</p>"
+                "<p style='margin:0px;'>"
+                "<b style='color:#23364D;'>&Delta;Q</b> &mdash; Net heat added (J)</p>"
+            )
+        elif index == 1:
+            self.equation_subheading1.setText("Heat Transfer Rate")
+            self.equation_subheading1.setVisible(True)
+            self.render_equation(
+                self.equation_ax1,
+                self.equation_figure1,
+                self.equation_canvas1,
+                r"$\dot{Q}_{1\to2} = \sigma(T_1 - T_2)$",
+                15,
+                50,
+            )
+
+            self.equation_mid_divider.setVisible(False)
+            self.equation_subheading2.setVisible(False)
+            self.equation_canvas2.setVisible(False)
+
+            explanation = (
+                "<p style='margin:0px 0px 4px 0px;'>"
+                "<b style='color:#23364D;'>&sigma;</b> &mdash; Thermal conductance "
+                "(W/&deg;C)</p>"
+                "<p style='margin:0px 0px 6px 0px;'>"
+                "<b style='color:#23364D;'>T<sub>1</sub>, T<sub>2</sub></b> "
+                "&mdash; Temperature (&deg;C)</p>"
+                "<p style='margin:0px 0px 3px 0px; color:#0D9488;'>"
+                "Positive: Body 1 &rarr; Body 2</p>"
+                "<p style='margin:0px;'>"
+                "Negative: Body 2 &rarr; Body 1</p>"
+            )
+        else:
+            self.equation_subheading1.setText("Continuous Model")
+            self.equation_subheading1.setVisible(True)
+            self.render_equation(
+                self.equation_ax1,
+                self.equation_figure1,
+                self.equation_canvas1,
+                r"$Q(t) = \int_0^t \dot{Q}(\tau)\,d\tau$",
+                14,
+                64,
+            )
+
+            self.equation_mid_divider.setVisible(True)
+            self.equation_subheading2.setText("Numerical Model")
+            self.equation_subheading2.setVisible(True)
+            self.equation_canvas2.setVisible(True)
+            self.render_equation(
+                self.equation_ax2,
+                self.equation_figure2,
+                self.equation_canvas2,
+                r"$Q_{i+1} = Q_i + \dot{Q}_i\Delta t_i$",
+                14,
+                40,
+            )
+
+            explanation = (
+                "<p style='margin:0px 0px 4px 0px;'>"
+                "<b style='color:#23364D;'>Q</b> &mdash; Net transferred energy (J)</p>"
+                "<p style='margin:0px 0px 4px 0px;'>"
+                "<b style='color:#23364D;'>Q&#775;</b> &mdash; Heat transfer rate (W)</p>"
+                "<p style='margin:0px 0px 5px 0px;'>"
+                "<b style='color:#23364D;'>&Delta;t</b> &mdash; Simulation time step (s)</p>"
+                "<p style='margin:0px; color:#64748B;'>Displayed in kJ</p>"
+            )
+
+        self.equation_explanation_label.setText(explanation)
+        self.equation_explanation_label.setMinimumHeight(
+            self.equation_explanation_label.heightForWidth(190) + 4
+        )
+
+    # הפעלת השרטוט עבור הלשונית הפעילה בלבד
     def draw_graph(self):
         if self.main_window is None:
             return
@@ -304,8 +575,18 @@ class GraphWindow(QWidget):
         if index < 0 or index >= len(self.main_window.simulation_history):
             return
 
-        # קריאת נתוני הסימולציה והגוף שנבחרו
         simulation = self.main_window.simulation_history[index]
+        current_tab = self.graph_tabs.currentIndex()
+
+        if current_tab == 0:
+            self.draw_temperature_graph(simulation)
+        elif current_tab == 1:
+            self.draw_heat_transfer_rate_graph(simulation)
+        elif current_tab == 2:
+            self.draw_cumulative_heat_transfer_graph(simulation)
+
+    # הוספת עקומת הגוף שנבחר לגרף הטמפרטורה ללא מחיקת עקומות קיימות
+    def draw_temperature_graph(self, simulation):
         number = simulation["number"]
         material1 = simulation["material1"]
         material2 = simulation["material2"]
@@ -355,8 +636,143 @@ class GraphWindow(QWidget):
         self.toolbar.update()
         self.toolbar.push_current()
 
-    # ניקוי הגרף המוצג ואיפוס מעקב הגופים והיסטוריית הניווט
-    def clear_graph(self):
+        # חישוב קצב מעבר החום בין הגופים
+    def calculate_heat_transfer_rate(self, simulation):
+        temperature1 = simulation["temperature1"]
+        temperature2 = simulation["temperature2"]
+        conductance = simulation["conductance"]
+
+        rates = []
+
+        for i in range(len(temperature1)):
+            rate = conductance * (temperature1[i] - temperature2[i])
+            rates.append(rate)
+
+        return rates
+
+    # הוספת עקומת קצב מעבר החום של הסימולציה הנבחרת להשוואה
+    def draw_heat_transfer_rate_graph(self, simulation):
+        number = simulation["number"]
+        if number in self.rate_displayed_simulations:
+            return
+
+        rates = self.calculate_heat_transfer_rate(simulation)
+        if len(rates) == 0:
+            return
+
+        # קביעת צבע וסגנון קו קבועים לפי מספר הסימולציה
+        color_index = (number - 1) % len(self.simulation_colors)
+        style_index = ((number - 1) // len(self.simulation_colors)) % len(
+            self.simulation_linestyles
+        )
+        color = self.simulation_colors[color_index]
+        linestyle = self.simulation_linestyles[style_index]
+
+        self.rate_ax.plot(
+            simulation["time"],
+            rates,
+            label=f"Simulation {number}",
+            color=color,
+            linestyle=linestyle,
+            linewidth=2.2,
+        )
+        self.rate_displayed_simulations.append(number)
+
+        # עדכון הכותרת הכללית, המקרא, גבולות הצירים והיסטוריית הניווט
+        self.rate_ax.set_title(
+            "Heat Transfer Rate vs. Time",
+            color="#23364D",
+            fontsize=13,
+            fontweight="bold",
+            pad=12,
+        )
+        self.rate_ax.legend(
+            facecolor="#FFFFFF",
+            edgecolor="#CBD5E1",
+            frameon=True,
+            fontsize=10,
+        )
+        self.rate_ax.margins(x=0.05, y=0.05)
+        self.rate_ax.relim()
+        self.rate_ax.autoscale()
+        self.rate_canvas.draw()
+        self.rate_toolbar.update()
+        self.rate_toolbar.push_current()
+
+        # חישוב אנרגיית החום המצטברת בין הגופים
+    def calculate_cumulative_heat_transfer(self, simulation):
+        time = simulation["time"]
+        temperature1 = simulation["temperature1"]
+        temperature2 = simulation["temperature2"]
+        conductance = simulation["conductance"]
+
+        if len(time) == 0:
+            return []
+
+        cumulative_kj = [0.0]
+        total_energy_joules = 0.0
+
+        # חישוב כמות החום שעברה בכל צעד זמן
+        for i in range(1, len(time)):
+            dt = time[i] - time[i - 1]
+            rate = conductance * (temperature1[i - 1] - temperature2[i - 1])
+
+            total_energy_joules += rate * dt
+            cumulative_kj.append(total_energy_joules / 1000.0)
+
+        return cumulative_kj
+
+    # הוספת עקומת מעבר החום המצטבר של הסימולציה הנבחרת להשוואה
+    def draw_cumulative_heat_transfer_graph(self, simulation):
+        number = simulation["number"]
+        if number in self.cumulative_displayed_simulations:
+            return
+
+        cumulative_kj = self.calculate_cumulative_heat_transfer(simulation)
+        if len(cumulative_kj) == 0:
+            return
+
+        # קביעת צבע וסגנון קו קבועים לפי מספר הסימולציה
+        color_index = (number - 1) % len(self.simulation_colors)
+        style_index = ((number - 1) // len(self.simulation_colors)) % len(
+            self.simulation_linestyles
+        )
+        color = self.simulation_colors[color_index]
+        linestyle = self.simulation_linestyles[style_index]
+
+        self.cumulative_ax.plot(
+            simulation["time"],
+            cumulative_kj,
+            label=f"Simulation {number}",
+            color=color,
+            linestyle=linestyle,
+            linewidth=2.2,
+        )
+        self.cumulative_displayed_simulations.append(number)
+
+        # עדכון הכותרת הכללית, המקרא, גבולות הצירים והיסטוריית הניווט
+        self.cumulative_ax.set_title(
+            "Cumulative Heat Transfer vs. Time",
+            color="#23364D",
+            fontsize=13,
+            fontweight="bold",
+            pad=12,
+        )
+        self.cumulative_ax.legend(
+            facecolor="#FFFFFF",
+            edgecolor="#CBD5E1",
+            frameon=True,
+            fontsize=10,
+        )
+        self.cumulative_ax.margins(x=0.05, y=0.05)
+        self.cumulative_ax.relim()
+        self.cumulative_ax.autoscale()
+        self.cumulative_canvas.draw()
+        self.cumulative_toolbar.update()
+        self.cumulative_toolbar.push_current()
+
+    # ניקוי גרף הטמפרטורה ואיפוס המעקב וההיסטוריה שלו
+    def clear_temperature_graph(self):
         self.body1_displayed = False
         self.body2_displayed = False
         self.ax.clear()
@@ -365,9 +781,47 @@ class GraphWindow(QWidget):
         self.toolbar.update()
         self.toolbar.push_current()
 
-    # ניקוי הגרף ואיפוס מעקב הגופים בעת החלפת סימולציה נבחרת
+    # ניקוי גרף קצב מעבר החום ואיפוס המעקב וההיסטוריה שלו
+    def clear_rate_graph(self):
+        self.rate_displayed_simulations = []
+        self.rate_ax.clear()
+        self.style_axes(
+            "Heat Transfer Rate vs. Time",
+            self.rate_ax,
+            self.rate_figure,
+            "Heat Transfer Rate (W)",
+        )
+        self.rate_canvas.draw()
+        self.rate_toolbar.update()
+        self.rate_toolbar.push_current()
+
+    # ניקוי גרף מעבר החום המצטבר ואיפוס המעקב וההיסטוריה שלו
+    def clear_cumulative_graph(self):
+        self.cumulative_displayed_simulations = []
+        self.cumulative_ax.clear()
+        self.style_axes(
+            "Cumulative Heat Transfer vs. Time",
+            self.cumulative_ax,
+            self.cumulative_figure,
+            "Transferred Energy (kJ)",
+        )
+        self.cumulative_canvas.draw()
+        self.cumulative_toolbar.update()
+        self.cumulative_toolbar.push_current()
+
+    # ניקוי הגרף המוצג בלשונית הפעילה בלבד
+    def clear_graph(self):
+        current_tab = self.graph_tabs.currentIndex()
+        if current_tab == 0:
+            self.clear_temperature_graph()
+        elif current_tab == 1:
+            self.clear_rate_graph()
+        elif current_tab == 2:
+            self.clear_cumulative_graph()
+
+    # ניקוי גרף הטמפרטורה בלבד בעת החלפת סימולציה ושמירת גרפי ההשוואה
     def simulation_changed(self):
-        self.clear_graph()
+        self.clear_temperature_graph()
 
     # עדכון רשימת הסימולציות והטבלה
     def refresh_simulations(self):

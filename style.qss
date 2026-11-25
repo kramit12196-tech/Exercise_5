@@ -540,3 +540,71 @@
     font-size: 11px;
     padding-right: 6px;
 }
+
+/* Browser-style graph tabs */
+#graphWindow QTabWidget#graphTabs::pane {
+    background-color: #FFFFFF;
+    border: 1px solid #E3E8EE;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    top: -1px;
+}
+
+#graphWindow QTabWidget#graphTabs QTabBar::tab {
+    background-color: #DCE4ED;
+    color: #64748B;
+    border: 1px solid #CBD5E1;
+    border-bottom: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 8px 18px;
+    margin-right: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: "Segoe UI";
+}
+
+#graphWindow QTabWidget#graphTabs QTabBar::tab:hover:!selected {
+    background-color: #E8EEF5;
+    color: #23364D;
+}
+
+#graphWindow QTabWidget#graphTabs QTabBar::tab:selected {
+    background-color: #FFFFFF;
+    color: #23364D;
+    border: 1px solid #E3E8EE;
+    border-bottom: 3px solid #2871B8;
+    font-weight: bold;
+}
+
+#graphWindow QWidget#graphTabPage {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+}
+
+/* Governing equation educational card */
+#graphWindow QLabel#equationHeading {
+    color: #23364D;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+#graphWindow QLabel#equationSubheading {
+    color: #64748B;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+#graphWindow QWidget#equationCard {
+    background-color: #F5F8FB;
+    border: 1px solid #CBD5E1;
+    border-radius: 8px;
+}
+
+#graphWindow QLabel#equationExplanation {
+    color: #64748B;
+    font-size: 11px;
+    font-family: "Segoe UI";
+}
