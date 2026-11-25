@@ -286,3 +286,257 @@
 #mainWindow QPushButton#secondaryButton:pressed {
     background-color: #E2E8F0;
 }
+
+/* Graph window styling */
+#graphWindow {
+    background-color: #E9EDF2;
+    font-family: "Segoe UI";
+    color: #23364D;
+}
+
+#graphWindow QLabel {
+    color: #23364D;
+    background-color: transparent;
+    font-family: "Segoe UI";
+}
+
+#graphHeaderCard {
+    background-color: #23364D;
+    border-radius: 8px;
+}
+
+#graphWindow QLabel#headerTitle {
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#graphWindow QLabel#headerSubtitle {
+    color: #CBD5E1;
+    font-size: 12px;
+}
+
+#graphPlotCard,
+#graphControlsCard,
+#graphTableCard {
+    background-color: #FFFFFF;
+    border: 1px solid #E3E8EE;
+    border-radius: 10px;
+}
+
+#graphWindow QLabel#sectionTitle,
+#graphWindow QLabel#cardTitle {
+    color: #23364D;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#graphWindow QLabel#secondaryLabel {
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#graphWindow QWidget#dividerLine {
+    background-color: #E3E8EE;
+}
+
+#graphWindow QComboBox {
+    background-color: #F8FAFC;
+    color: #23364D;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 13px;
+    font-family: "Segoe UI";
+}
+
+#graphWindow QComboBox:focus {
+    border: 2px solid #2871B8;
+    background-color: #FFFFFF;
+}
+
+#graphWindow QComboBox:disabled {
+    background-color: #EDF1F5;
+    color: #94A3B8;
+    border: 1px solid #E3E8EE;
+}
+
+#graphWindow QPushButton#drawButton {
+    background-color: #2871B8;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#graphWindow QPushButton#drawButton:hover {
+    background-color: #2364A3;
+}
+
+#graphWindow QPushButton#drawButton:pressed {
+    background-color: #1C5489;
+}
+
+#graphWindow QPushButton#drawButton:disabled {
+    background-color: #EDF1F5;
+    color: #94A3B8;
+    border: 1px solid #CBD5E1;
+}
+
+#graphWindow QPushButton#graphSecondaryButton {
+    background-color: #FFFFFF;
+    color: #23364D;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#graphWindow QPushButton#graphSecondaryButton:hover {
+    background-color: #F1F5F9;
+    border: 1px solid #94A3B8;
+}
+
+#graphWindow QPushButton#graphSecondaryButton:pressed {
+    background-color: #E2E8F0;
+}
+
+#graphWindow QPushButton#toggleTableButton {
+    background-color: #F8FAFC;
+    color: #23364D;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#graphWindow QPushButton#toggleTableButton:hover {
+    background-color: #F1F5F9;
+    border: 1px solid #94A3B8;
+}
+
+#graphWindow QPushButton#toggleTableButton:pressed {
+    background-color: #E2E8F0;
+}
+
+/* Simulation parameters table */
+#graphWindow QTableWidget#parametersTable {
+    background-color: #FFFFFF;
+    alternate-background-color: #F8FAFC;
+    color: #23364D;
+    gridline-color: #E3E8EE;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: "Segoe UI";
+    selection-background-color: #DBEAFE;
+    selection-color: #23364D;
+}
+
+#graphWindow QTableWidget#parametersTable::item {
+    padding: 0px;
+}
+
+#graphWindow QHeaderView {
+    background-color: #23364D;
+    border: none;
+}
+
+#graphWindow QHeaderView::section {
+    background-color: #23364D;
+    color: #FFFFFF;
+    border: none;
+    border-right: 1px solid #334A66;
+    padding: 5px 8px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* Parameter table category cells and group separators */
+#graphWindow QLabel#categoryGeneral {
+    background-color: #E7EDF5;
+    color: #23364D;
+    font-size: 13px;
+    font-weight: bold;
+    border-left: 4px solid #64748B;
+    border-bottom: 2px solid #94A3B8;
+}
+
+#graphWindow QLabel#categoryBody1 {
+    background-color: #FBE9E9;
+    color: #B91C1C;
+    font-size: 13px;
+    font-weight: bold;
+    border-left: 4px solid #DC2626;
+    border-bottom: 2px solid #94A3B8;
+}
+
+#graphWindow QLabel#categoryBody2 {
+    background-color: #E8F0FA;
+    color: #215B99;
+    font-size: 13px;
+    font-weight: bold;
+    border-left: 4px solid #2871B8;
+}
+
+#graphWindow QLabel#tableSeparatorParam {
+    background-color: transparent;
+    color: #23364D;
+    font-size: 13px;
+    padding: 0px 2px;
+    border-bottom: 2px solid #94A3B8;
+}
+
+#graphWindow QLabel#tableSeparatorValue {
+    background-color: transparent;
+    color: #23364D;
+    font-size: 13px;
+    padding: 0px;
+    border-bottom: 2px solid #94A3B8;
+}
+
+/* Matplotlib navigation toolbar */
+#graphWindow QToolBar#graphToolbar {
+    background-color: #F8FAFC;
+    color: #23364D;
+    border: 1px solid #E3E8EE;
+    border-radius: 6px;
+    spacing: 4px;
+    padding: 1px 6px;
+}
+
+#graphWindow QToolBar#graphToolbar QToolButton {
+    background-color: transparent;
+    color: #23364D;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 2px;
+}
+
+#graphWindow QToolBar#graphToolbar QToolButton:hover {
+    background-color: #E2E8F0;
+    border: 1px solid #CBD5E1;
+}
+
+#graphWindow QToolBar#graphToolbar QToolButton:pressed {
+    background-color: #CBD5E1;
+}
+
+#graphWindow QToolBar#graphToolbar QToolButton:checked {
+    background-color: #DBEAFE;
+    border: 1px solid #2871B8;
+}
+
+#graphWindow QToolBar#graphToolbar QToolButton:disabled {
+    background-color: transparent;
+    border: 1px solid transparent;
+}
+
+#graphWindow QToolBar#graphToolbar QLabel {
+    color: #64748B;
+    font-size: 11px;
+    padding-right: 6px;
+}
