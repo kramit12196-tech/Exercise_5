@@ -42,11 +42,11 @@ class GraphWindow(QWidget):
 
         # יצירת כותרת וטבלת פרמטרי הסימולציה
         self.parameters_title = QLabel("Simulation Parameters")
-        self.parameters_table = QTableWidget(8, 2)
+        self.parameters_table = QTableWidget(10, 2)
         self.parameters_table.setHorizontalHeaderLabels(["Category", "Parameter"])
         self.parameters_table.setColumnWidth(0, 90)
         self.parameters_table.setColumnWidth(1, 280)
-        self.parameters_table.setFixedHeight(275)
+        self.parameters_table.setFixedHeight(335)
         self.parameters_table.setEditTriggers(
             QTableWidget.EditTrigger.NoEditTriggers
         )
@@ -60,20 +60,22 @@ class GraphWindow(QWidget):
         body1_item = QTableWidgetItem("Body 1")
         body1_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         self.parameters_table.setItem(2, 0, body1_item)
-        self.parameters_table.setSpan(2, 0, 3, 1)
+        self.parameters_table.setSpan(2, 0, 4, 1)
 
         body2_item = QTableWidgetItem("Body 2")
         body2_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.parameters_table.setItem(5, 0, body2_item)
-        self.parameters_table.setSpan(5, 0, 3, 1)
+        self.parameters_table.setItem(6, 0, body2_item)
+        self.parameters_table.setSpan(6, 0, 4, 1)
 
         # מילוי שמות הפרמטרים בעמודה השנייה
         parameter_names = [
             "Thermal Conductance (W/°C)",
             "Simulation Duration (s)",
+            "Material",
             "Initial Temperature (°C)",
             "Mass (kg)",
             "Specific Heat Capacity (J/(kg·°C))",
+            "Material",
             "Initial Temperature (°C)",
             "Mass (kg)",
             "Specific Heat Capacity (J/(kg·°C))",
@@ -161,6 +163,8 @@ class GraphWindow(QWidget):
         # קריאת נתוני הסימולציה והגוף שנבחרו
         simulation = self.main_window.simulation_history[index]
         number = simulation["number"]
+        material1 = simulation["material1"]
+        material2 = simulation["material2"]
         selected_body = self.body_selector.currentText()
 
         # ניקוי הגרף והגדרת כותרות ורשת
@@ -175,7 +179,7 @@ class GraphWindow(QWidget):
             self.ax.plot(
                 simulation["time"],
                 simulation["temperature1"],
-                label="Body 1",
+                label=f"Body 1 ({material1})",
                 color="red",
                 linewidth=2,
             )
@@ -185,7 +189,7 @@ class GraphWindow(QWidget):
             self.ax.plot(
                 simulation["time"],
                 simulation["temperature2"],
-                label="Body 2",
+                label=f"Body 2 ({material2})",
                 color="blue",
                 linewidth=2,
             )
@@ -246,21 +250,23 @@ class GraphWindow(QWidget):
         for i in range(len(simulations)):
             simulation = simulations[i]
             column = i + 2
-            self.parameters_table.setColumnWidth(column, 110)
+            self.parameters_table.setColumnWidth(column, 120)
 
             values = [
-                simulation["conductance"],
-                simulation["duration"],
-                simulation["initial_temp1"],
-                simulation["mass1"],
-                simulation["heat_capacity1"],
-                simulation["initial_temp2"],
-                simulation["mass2"],
-                simulation["heat_capacity2"],
+                f"{simulation['conductance']:.2f}",
+                f"{simulation['duration']:.2f}",
+                simulation["material1"],
+                f"{simulation['initial_temp1']:.2f}",
+                f"{simulation['mass1']:.2f}",
+                f"{simulation['heat_capacity1']:.2f}",
+                simulation["material2"],
+                f"{simulation['initial_temp2']:.2f}",
+                f"{simulation['mass2']:.2f}",
+                f"{simulation['heat_capacity2']:.2f}",
             ]
 
             for row in range(len(values)):
-                item = QTableWidgetItem(f"{values[row]:.2f}")
+                item = QTableWidgetItem(values[row])
                 item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.parameters_table.setItem(row, column, item)
 
