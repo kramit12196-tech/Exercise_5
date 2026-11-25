@@ -52,7 +52,7 @@ class HeatTransfer(QWidget):
     # בניית ממשק המשתמש
     def setupUI(self):
         self.setWindowTitle("Heat Transfer Simulation")
-        self.resize(1040, 530)
+        self.resize(1040, 585)
 
         # יצירת הכותרת וכפתור אודות
         self.title_label = QLabel("Heat Transfer Simulation")
@@ -75,6 +75,14 @@ class HeatTransfer(QWidget):
         self.body1_visual.setFixedSize(135, 114)
         self.body1_visual.setStyleSheet("background-color: red;")
 
+        # יצירת חיווי גוף החימום מתחת לגוף הראשון
+        self.body1_heater_indicator = QLabel("Heater OFF")
+        self.body1_heater_indicator.setFixedSize(135, 24)
+        self.body1_heater_indicator.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.body1_heater_indicator.setStyleSheet(
+            "background-color: lightgray; border: 1px solid gray;"
+        )
+
         self.body1_slider_label = QLabel("Initial Temperature")
         self.body1_slider_label.setFixedSize(95, 44)
         self.body1_slider_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -90,6 +98,7 @@ class HeatTransfer(QWidget):
         body1_visual_layout.setSpacing(6)
         body1_visual_layout.addWidget(self.body1_title)
         body1_visual_layout.addWidget(self.body1_visual)
+        body1_visual_layout.addWidget(self.body1_heater_indicator)
 
         body1_slider_row = QHBoxLayout()
         body1_slider_row.addStretch()
@@ -100,6 +109,7 @@ class HeatTransfer(QWidget):
         body1_slider_layout.setSpacing(6)
         body1_slider_layout.addWidget(self.body1_slider_label)
         body1_slider_layout.addLayout(body1_slider_row)
+        body1_slider_layout.addStretch()
 
         # יצירת פקד המוליכות והמחבר המרכזי
         self.conductance_label = QLabel("Thermal Conductance")
@@ -145,6 +155,14 @@ class HeatTransfer(QWidget):
         self.body2_visual.setFixedSize(135, 114)
         self.body2_visual.setStyleSheet("background-color: black;")
 
+        # יצירת חיווי גוף החימום מתחת לגוף השני
+        self.body2_heater_indicator = QLabel("Heater OFF")
+        self.body2_heater_indicator.setFixedSize(135, 24)
+        self.body2_heater_indicator.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.body2_heater_indicator.setStyleSheet(
+            "background-color: lightgray; border: 1px solid gray;"
+        )
+
         self.body2_slider_label = QLabel("Initial Temperature")
         self.body2_slider_label.setFixedSize(95, 44)
         self.body2_slider_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -160,6 +178,7 @@ class HeatTransfer(QWidget):
         body2_visual_layout.setSpacing(6)
         body2_visual_layout.addWidget(self.body2_title)
         body2_visual_layout.addWidget(self.body2_visual)
+        body2_visual_layout.addWidget(self.body2_heater_indicator)
 
         body2_slider_row = QHBoxLayout()
         body2_slider_row.addStretch()
@@ -170,6 +189,7 @@ class HeatTransfer(QWidget):
         body2_slider_layout.setSpacing(6)
         body2_slider_layout.addWidget(self.body2_slider_label)
         body2_slider_layout.addLayout(body2_slider_row)
+        body2_slider_layout.addStretch()
 
         # סידור שני הגופים והמחבר ביניהם בחלק העליון
         bodies_bridge_layout = QHBoxLayout()
@@ -249,6 +269,24 @@ class HeatTransfer(QWidget):
             QDoubleSpinBox.ButtonSymbols.NoButtons
         )
 
+        # יצירת פקד הספק החימום של הגוף הראשון
+        self.body1_heating_power_label = QLabel("Heating Power")
+        self.body1_heating_power_label.setFixedSize(155, 30)
+        self.body1_heating_power_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        )
+
+        self.body1_heating_power_input = QDoubleSpinBox()
+        self.body1_heating_power_input.setFixedSize(160, 30)
+        self.body1_heating_power_input.setMinimum(0.0)
+        self.body1_heating_power_input.setMaximum(1000.0)
+        self.body1_heating_power_input.setValue(0.0)
+        self.body1_heating_power_input.setSuffix(" W")
+        self.body1_heating_power_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.body1_heating_power_input.setButtonSymbols(
+            QDoubleSpinBox.ButtonSymbols.NoButtons
+        )
+
         # סידור שורות הנתונים של הגוף הראשון
         body1_material_layout = QHBoxLayout()
         body1_material_layout.setSpacing(8)
@@ -270,6 +308,11 @@ class HeatTransfer(QWidget):
         body1_heat_capacity_layout.addWidget(self.body1_heat_capacity_label)
         body1_heat_capacity_layout.addWidget(self.body1_heat_capacity_input)
 
+        body1_heating_power_layout = QHBoxLayout()
+        body1_heating_power_layout.setSpacing(8)
+        body1_heating_power_layout.addWidget(self.body1_heating_power_label)
+        body1_heating_power_layout.addWidget(self.body1_heating_power_input)
+
         body1_layout = QVBoxLayout()
         body1_layout.setSpacing(10)
         body1_layout.addWidget(self.body1_parameters_title)
@@ -277,6 +320,7 @@ class HeatTransfer(QWidget):
         body1_layout.addLayout(body1_temperature_layout)
         body1_layout.addLayout(body1_mass_layout)
         body1_layout.addLayout(body1_heat_capacity_layout)
+        body1_layout.addLayout(body1_heating_power_layout)
         body1_layout.addStretch()
 
         # יצירת כפתור ההפעלה ותצוגת זמן הסימולציה
@@ -337,7 +381,7 @@ class HeatTransfer(QWidget):
 
         center_layout = QVBoxLayout()
         center_layout.setSpacing(14)
-        center_layout.addSpacing(16)
+        center_layout.addSpacing(34)
         center_layout.addLayout(start_row_layout)
         center_layout.addLayout(graphs_row_layout)
         center_layout.addLayout(reset_row_layout)
@@ -407,6 +451,24 @@ class HeatTransfer(QWidget):
             QDoubleSpinBox.ButtonSymbols.NoButtons
         )
 
+        # יצירת פקד הספק החימום של הגוף השני
+        self.body2_heating_power_label = QLabel("Heating Power")
+        self.body2_heating_power_label.setFixedSize(155, 30)
+        self.body2_heating_power_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        )
+
+        self.body2_heating_power_input = QDoubleSpinBox()
+        self.body2_heating_power_input.setFixedSize(160, 30)
+        self.body2_heating_power_input.setMinimum(0.0)
+        self.body2_heating_power_input.setMaximum(1000.0)
+        self.body2_heating_power_input.setValue(0.0)
+        self.body2_heating_power_input.setSuffix(" W")
+        self.body2_heating_power_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.body2_heating_power_input.setButtonSymbols(
+            QDoubleSpinBox.ButtonSymbols.NoButtons
+        )
+
         # סידור שורות הנתונים של הגוף השני
         body2_material_layout = QHBoxLayout()
         body2_material_layout.setSpacing(8)
@@ -428,6 +490,11 @@ class HeatTransfer(QWidget):
         body2_heat_capacity_layout.addWidget(self.body2_heat_capacity_label)
         body2_heat_capacity_layout.addWidget(self.body2_heat_capacity_input)
 
+        body2_heating_power_layout = QHBoxLayout()
+        body2_heating_power_layout.setSpacing(8)
+        body2_heating_power_layout.addWidget(self.body2_heating_power_label)
+        body2_heating_power_layout.addWidget(self.body2_heating_power_input)
+
         body2_layout = QVBoxLayout()
         body2_layout.setSpacing(10)
         body2_layout.addWidget(self.body2_parameters_title)
@@ -435,6 +502,7 @@ class HeatTransfer(QWidget):
         body2_layout.addLayout(body2_temperature_layout)
         body2_layout.addLayout(body2_mass_layout)
         body2_layout.addLayout(body2_heat_capacity_layout)
+        body2_layout.addLayout(body2_heating_power_layout)
         body2_layout.addStretch()
 
         # סידור שלושת החלקים התחתונים בחלון
@@ -453,7 +521,7 @@ class HeatTransfer(QWidget):
         main_layout.addLayout(header_layout)
         main_layout.addSpacing(10)
         main_layout.addLayout(upper_layout)
-        main_layout.addSpacing(45)
+        main_layout.addSpacing(28)
         main_layout.addLayout(lower_layout)
         main_layout.addStretch()
         self.setLayout(main_layout)
@@ -469,6 +537,36 @@ class HeatTransfer(QWidget):
         # חיבור שדות קיבול החום הסגולי לבדיקת תקינות כפתור ההפעלה
         self.body1_heat_capacity_input.valueChanged.connect(self.update_start_button_state)
         self.body2_heat_capacity_input.valueChanged.connect(self.update_start_button_state)
+
+        # חיבור שדות הספק החימום לעדכון חיווי גופי החימום
+        self.body1_heating_power_input.valueChanged.connect(self.body1_heating_power_changed)
+        self.body2_heating_power_input.valueChanged.connect(self.body2_heating_power_changed)
+
+    # עדכון חיווי גוף החימום של הגוף הראשון
+    def body1_heating_power_changed(self, power):
+        if power > 0:
+            self.body1_heater_indicator.setText("Heater ON")
+            self.body1_heater_indicator.setStyleSheet(
+                "background-color: orange; border: 1px solid gray;"
+            )
+        else:
+            self.body1_heater_indicator.setText("Heater OFF")
+            self.body1_heater_indicator.setStyleSheet(
+                "background-color: lightgray; border: 1px solid gray;"
+            )
+
+    # עדכון חיווי גוף החימום של הגוף השני
+    def body2_heating_power_changed(self, power):
+        if power > 0:
+            self.body2_heater_indicator.setText("Heater ON")
+            self.body2_heater_indicator.setStyleSheet(
+                "background-color: orange; border: 1px solid gray;"
+            )
+        else:
+            self.body2_heater_indicator.setText("Heater OFF")
+            self.body2_heater_indicator.setStyleSheet(
+                "background-color: lightgray; border: 1px solid gray;"
+            )
 
     # עדכון הכותרות וקיבול החום הסגולי של הגוף הראשון לפי החומר שנבחר
     def body1_material_changed(self, material):
@@ -533,6 +631,9 @@ class HeatTransfer(QWidget):
         self.body1_temperature = temperature
         self.body1_temperature_display.setText(f"{temperature:.2f} °C")
         red = int(temperature / 200 * 255)
+        if red > 255:   # הגבלת ערך הצבע לטווח RGB
+            red = 255
+
         self.body1_visual.setStyleSheet(f"background-color: rgb({red}, 0, 0);")
 
     # עדכון הטמפרטורה והצבע של הגוף הימני
@@ -540,6 +641,9 @@ class HeatTransfer(QWidget):
         self.body2_temperature = temperature
         self.body2_temperature_display.setText(f"{temperature:.2f} °C")
         red = int(temperature / 200 * 255)
+        if red > 255:   # הגבלת ערך הצבע לטווח RGB
+                    red = 255
+
         self.body2_visual.setStyleSheet(f"background-color: rgb({red}, 0, 0);")
 
         # הפעלה ועצירה של הסימולציה
@@ -554,6 +658,10 @@ class HeatTransfer(QWidget):
             self.body2 = Body(self.body2_mass_input.value(), self.body2_heat_capacity_input.value(), self.body2_temperature)
 
             self.conductance = self.conductance_input.value()
+            
+            # שמירת הספקי החימום בתחילת הסימולציה
+            self.heating_power1 = self.body1_heating_power_input.value()
+            self.heating_power2 = self.body2_heating_power_input.value()
 
             # שמירת שמות החומרים שנבחרו בתחילת הסימולציה
             self.body1_material = self.body1_material_selector.currentText()
@@ -583,6 +691,9 @@ class HeatTransfer(QWidget):
 
             self.body1_heat_capacity_input.setEnabled(False)
             self.body2_heat_capacity_input.setEnabled(False)
+
+            self.body1_heating_power_input.setEnabled(False)
+            self.body2_heating_power_input.setEnabled(False)
 
             self.conductance_input.setEnabled(False)
 
@@ -622,6 +733,9 @@ class HeatTransfer(QWidget):
             if self.body2_material_selector.currentText() == "Custom":
                 self.body2_heat_capacity_input.setEnabled(True)
 
+            self.body1_heating_power_input.setEnabled(True)
+            self.body2_heating_power_input.setEnabled(True)
+
             self.conductance_input.setEnabled(True)
             self.update_start_button_state()
 
@@ -629,8 +743,9 @@ class HeatTransfer(QWidget):
         t1 = self.body1.temperature
         t2 = self.body2.temperature
 
-        i1 = self.conductance * (t2 - t1)
-        i2 = self.conductance * (t1 - t2)
+        # חישוב קצב מעבר החום כולל גופי החימום
+        i1 = self.conductance * (t2 - t1) + self.heating_power1
+        i2 = self.conductance * (t1 - t2) + self.heating_power2
 
         q1 = i1 * self.dt
         q2 = i2 * self.dt
@@ -654,9 +769,13 @@ class HeatTransfer(QWidget):
 
         temperature_difference = new_t1 - new_t2
 
-        if temperature_difference <= self.temperature_tolerance and temperature_difference >= -self.temperature_tolerance:
-            self.start_button.setChecked(False)
-            self.simulation_time_title.setText("Equilibrium Time")
+        # עצירה אוטומטית כאשר גופי החימום כבויים
+        if self.heating_power1 == 0 and self.heating_power2 == 0:
+
+            if temperature_difference <= self.temperature_tolerance and temperature_difference >= -self.temperature_tolerance:
+
+                self.start_button.setChecked(False)
+                self.simulation_time_title.setText("Equilibrium Time")
 
     # פתיחת חלון אודות
     def open_about(self):
@@ -684,6 +803,9 @@ class HeatTransfer(QWidget):
 
             "heat_capacity1": self.body1.heat_capacity,
             "heat_capacity2": self.body2.heat_capacity,
+
+            "heating_power1": self.heating_power1,
+            "heating_power2": self.heating_power2,
 
             "initial_temp1": self.body1_temp_history[0],
             "initial_temp2": self.body2_temp_history[0],
@@ -724,6 +846,12 @@ class HeatTransfer(QWidget):
         self.body1_heat_capacity_input.setValue(0.40)
         self.body2_heat_capacity_input.setValue(0.40)
         self.update_start_button_state()
+
+        # איפוס הספקי החימום וחיווי גופי החימום
+        self.body1_heating_power_input.setValue(0.0)
+        self.body2_heating_power_input.setValue(0.0)
+        self.body1_heating_power_changed(0.0)
+        self.body2_heating_power_changed(0.0)
 
         # איפוס מקדם מעבר החום
         self.conductance_input.setValue(1.0)

@@ -27,7 +27,7 @@ class GraphWindow(QWidget):
     # בניית ממשק המשתמש
     def setupUI(self):
         self.setWindowTitle("Heat Transfer Graphs")
-        self.resize(1200, 800)
+        self.resize(1200, 860)
 
         # יצירת אזור הגרף
         self.figure = Figure()
@@ -42,11 +42,11 @@ class GraphWindow(QWidget):
 
         # יצירת כותרת וטבלת פרמטרי הסימולציה
         self.parameters_title = QLabel("Simulation Parameters")
-        self.parameters_table = QTableWidget(10, 2)
+        self.parameters_table = QTableWidget(12, 2)
         self.parameters_table.setHorizontalHeaderLabels(["Category", "Parameter"])
         self.parameters_table.setColumnWidth(0, 90)
         self.parameters_table.setColumnWidth(1, 280)
-        self.parameters_table.setFixedHeight(335)
+        self.parameters_table.setFixedHeight(395)
         self.parameters_table.setEditTriggers(
             QTableWidget.EditTrigger.NoEditTriggers
         )
@@ -60,12 +60,12 @@ class GraphWindow(QWidget):
         body1_item = QTableWidgetItem("Body 1")
         body1_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         self.parameters_table.setItem(2, 0, body1_item)
-        self.parameters_table.setSpan(2, 0, 4, 1)
+        self.parameters_table.setSpan(2, 0, 5, 1)
 
         body2_item = QTableWidgetItem("Body 2")
         body2_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.parameters_table.setItem(6, 0, body2_item)
-        self.parameters_table.setSpan(6, 0, 4, 1)
+        self.parameters_table.setItem(7, 0, body2_item)
+        self.parameters_table.setSpan(7, 0, 5, 1)
 
         # מילוי שמות הפרמטרים בעמודה השנייה
         parameter_names = [
@@ -75,10 +75,12 @@ class GraphWindow(QWidget):
             "Initial Temperature (°C)",
             "Mass (kg)",
             "Specific Heat Capacity (J/(kg·°C))",
+            "Heating Power (W)",
             "Material",
             "Initial Temperature (°C)",
             "Mass (kg)",
             "Specific Heat Capacity (J/(kg·°C))",
+            "Heating Power (W)",
         ]
         for row in range(len(parameter_names)):
             self.parameters_table.setItem(
@@ -259,10 +261,12 @@ class GraphWindow(QWidget):
                 f"{simulation['initial_temp1']:.2f}",
                 f"{simulation['mass1']:.2f}",
                 f"{simulation['heat_capacity1']:.2f}",
+                f"{simulation['heating_power1']:.2f}",
                 simulation["material2"],
                 f"{simulation['initial_temp2']:.2f}",
                 f"{simulation['mass2']:.2f}",
                 f"{simulation['heat_capacity2']:.2f}",
+                f"{simulation['heating_power2']:.2f}",
             ]
 
             for row in range(len(values)):
