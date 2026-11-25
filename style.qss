@@ -1,0 +1,288 @@
+/* עיצוב החלון הראשי של סימולציית מעבר החום */
+#mainWindow {
+    background-color: #E9EDF2;
+    font-family: "Segoe UI";
+    color: #23364D;
+}
+
+#mainWindow QLabel {
+    color: #23364D;
+    background-color: transparent;
+    font-family: "Segoe UI";
+}
+
+/* כותרת ראשית כהה */
+#headerCard {
+    background-color: #23364D;
+    border-radius: 8px;
+}
+
+#mainWindow QLabel#headerTitle {
+    color: #FFFFFF;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#mainWindow QLabel#headerSubtitle {
+    color: #CBD5E1;
+    font-size: 12px;
+}
+
+#mainWindow QPushButton#aboutButton {
+    background-color: transparent;
+    color: #FFFFFF;
+    border: 1px solid #94A3B8;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#mainWindow QPushButton#aboutButton:hover {
+    background-color: #2F4663;
+    border: 1px solid #FFFFFF;
+}
+
+#mainWindow QPushButton#aboutButton:pressed {
+    background-color: #1B2A3D;
+}
+
+/* כרטיסי תוכן לבנים */
+#thermalCard,
+#body1Card,
+#controlsCard,
+#body2Card {
+    background-color: #FFFFFF;
+    border: 1px solid #E3E8EE;
+    border-radius: 10px;
+}
+
+/* כותרות כרטיסים ומפרידים */
+#mainWindow QLabel#sectionTitle {
+    color: #23364D;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#mainWindow QLabel#cardTitle {
+    color: #23364D;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#mainWindow QWidget#dividerLine {
+    background-color: #E3E8EE;
+}
+
+/* תווית מצב הסימולציה */
+#mainWindow QLabel#statusLabel {
+    color: #64748B;
+    background-color: #F1F5F9;
+    border: 1px solid #CBD5E1;
+    border-radius: 10px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* כותרות ותוויות משניות */
+#mainWindow QLabel#bodyTitle {
+    color: #23364D;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#mainWindow QLabel#secondaryLabel {
+    color: #64748B;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#mainWindow QLabel#paramLabel {
+    color: #23364D;
+    font-size: 13px;
+}
+
+/* מלבני הגופים והמוט המחבר */
+#mainWindow QLabel#bodyVisual {
+    color: #FFFFFF;
+    font-size: 21px;
+    font-weight: bold;
+    border-radius: 6px;
+}
+
+#mainWindow QLabel#connectorRod {
+    background-color: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 0,
+        stop: 0 #94A3B8,
+        stop: 0.5 #CBD5E1,
+        stop: 1 #94A3B8
+    );
+    border-top: 1px solid #94A3B8;
+    border-bottom: 1px solid #94A3B8;
+}
+
+/* חיווי גופי חימום */
+#mainWindow QLabel#heaterIndicator {
+    background-color: #E2E8F0;
+    color: #475569;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* תצוגות לקריאה בלבד */
+#mainWindow QLabel#tempDisplay {
+    background-color: #F1F5F9;
+    color: #23364D;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#mainWindow QLabel#timeDisplay {
+    background-color: #F1F5F9;
+    color: #23364D;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 21px;
+    font-weight: bold;
+}
+
+/* שדות קלט מספריים */
+#mainWindow QDoubleSpinBox {
+    background-color: #F8FAFC;
+    color: #23364D;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 0px 4px;
+    font-size: 13px;
+    font-family: "Segoe UI";
+}
+
+#mainWindow QDoubleSpinBox:focus {
+    border: 2px solid #2871B8;
+    background-color: #FFFFFF;
+}
+
+#mainWindow QDoubleSpinBox:disabled {
+    background-color: #EDF1F5;
+    color: #94A3B8;
+    border: 1px solid #E3E8EE;
+}
+
+#mainWindow QDoubleSpinBox::up-button,
+#mainWindow QDoubleSpinBox::down-button {
+    subcontrol-origin: border;
+    width: 0px;
+    border: none;
+}
+
+/* תיבות בחירה */
+#mainWindow QComboBox {
+    background-color: #F8FAFC;
+    color: #23364D;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 13px;
+    font-family: "Segoe UI";
+}
+
+#mainWindow QComboBox:focus {
+    border: 2px solid #2871B8;
+    background-color: #FFFFFF;
+}
+
+#mainWindow QComboBox:disabled {
+    background-color: #EDF1F5;
+    color: #94A3B8;
+    border: 1px solid #E3E8EE;
+}
+
+/* סליידרים אנכיים לטמפרטורה */
+#mainWindow QSlider::groove:vertical {
+    background-color: #CBD5E1;
+    width: 6px;
+    border-radius: 3px;
+}
+
+#mainWindow QSlider::sub-page:vertical {
+    background-color: #CBD5E1;
+    border-radius: 3px;
+}
+
+#mainWindow QSlider::add-page:vertical {
+    background-color: #2871B8;
+    border-radius: 3px;
+}
+
+#mainWindow QSlider::handle:vertical {
+    background-color: #2871B8;
+    border: 2px solid #FFFFFF;
+    height: 16px;
+    width: 16px;
+    margin: 0px -6px;
+    border-radius: 9px;
+}
+
+#mainWindow QSlider::handle:vertical:hover {
+    background-color: #2364A3;
+}
+
+#mainWindow QSlider::handle:vertical:disabled {
+    background-color: #94A3B8;
+}
+
+/* כפתור הפעלה ועצירה ראשי */
+#mainWindow QPushButton#startButton {
+    background-color: #2871B8;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#mainWindow QPushButton#startButton:hover {
+    background-color: #2364A3;
+}
+
+#mainWindow QPushButton#startButton:pressed {
+    background-color: #1C5489;
+}
+
+#mainWindow QPushButton#startButton:checked {
+    background-color: #DC2626;
+    color: #FFFFFF;
+}
+
+#mainWindow QPushButton#startButton:checked:hover {
+    background-color: #B91C1C;
+}
+
+#mainWindow QPushButton#startButton:disabled {
+    background-color: #EDF1F5;
+    color: #94A3B8;
+    border: 1px solid #CBD5E1;
+}
+
+/* כפתורים משניים */
+#mainWindow QPushButton#secondaryButton {
+    background-color: #FFFFFF;
+    color: #23364D;
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#mainWindow QPushButton#secondaryButton:hover {
+    background-color: #F1F5F9;
+    border: 1px solid #94A3B8;
+}
+
+#mainWindow QPushButton#secondaryButton:pressed {
+    background-color: #E2E8F0;
+}
