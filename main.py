@@ -34,6 +34,7 @@ class HeatTransfer(QWidget):
         self.time_history = []
         self.body1_temp_history = []
         self.body2_temp_history = []
+        self.simulation_history = []
 
     # בניית ממשק המשתמש
     def setupUI(self):
@@ -478,6 +479,9 @@ class HeatTransfer(QWidget):
         else:  # עצירת הסימולציה
             self.timer.stop()
             self.start_button.setText("Start")
+            
+            if len(self.time_history) > 0:
+                self.save_simulation()
 
             # שחרור פקדי הקלט לאחר עצירת הסימולציה
             self.body1_temperature_slider.setEnabled(True)
@@ -541,7 +545,37 @@ class HeatTransfer(QWidget):
 
     # פתיחת חלון הגרפים
     def open_graphs(self):
+        self.graph_window.refresh_simulations()
         self.graph_window.show()
+
+        # שמירת נתוני הסימולציה שהסתיימה
+    def save_simulation(self):
+        simulation_number = len(self.simulation_history) + 1   # הגדרת מספר הסימולציה
+
+        # שמירת הפרמטרים ותוצאות הסימולציה
+        simulation = {
+            "number": simulation_number,
+            "conductance": self.conductance,
+
+            "mass1": self.body1.mass,
+            "mass2": self.body2.mass,
+
+            "heat_capacity1": self.body1.heat_capacity,
+            "heat_capacity2": self.body2.heat_capacity,
+
+            "initial_temp1": self.body1_temp_history[0],
+            "initial_temp2": self.body2_temp_history[0],
+
+            "duration": self.elapsed_time,
+
+            "time": self.time_history[:],
+            "temperature1": self.body1_temp_history[:],
+            "temperature2": self.body2_temp_history[:]
+        }
+
+        # הוספת הסימולציה להיסטוריה
+        self.simulation_history.append(simulation)
+        self.graph_window.refresh_simulations()
 
     # איפוס נתוני הסימולציה לערכי ברירת המחדל
     def reset_defaults(self):
