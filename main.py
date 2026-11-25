@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 )
 
 from About import AboutWindow
+from Graph import GraphWindow
 
 
 class HeatTransfer(QWidget):
@@ -19,6 +20,7 @@ class HeatTransfer(QWidget):
     def __init__(self):
         super().__init__()
         self.about_window = AboutWindow()
+        self.graph_window = GraphWindow(self)
         self.setupUI()
 
     # בניית ממשק המשתמש
@@ -246,6 +248,7 @@ class HeatTransfer(QWidget):
         self.start_button.setCheckable(True)
         self.graphs_button = QPushButton("Graphs")
         self.graphs_button.setFixedSize(145, 38)
+        self.graphs_button.clicked.connect(self.open_graphs)
 
         center_layout = QVBoxLayout()
         center_layout.setSpacing(14)
@@ -358,6 +361,10 @@ class HeatTransfer(QWidget):
     # פתיחת חלון אודות
     def open_about(self):
         self.about_window.show()
+
+    # פתיחת חלון הגרפים
+    def open_graphs(self):
+        self.graph_window.show()
 
 
 # הפעלת החלון הראשי
