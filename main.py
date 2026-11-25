@@ -30,6 +30,11 @@ class HeatTransfer(QWidget):
         
         self.setupUI()
 
+        # יצירת רשימות לשמירת נתוני הסימולציה
+        self.time_history = []
+        self.body1_temp_history = []
+        self.body2_temp_history = []
+
     # בניית ממשק המשתמש
     def setupUI(self):
         self.setWindowTitle("Heat Transfer Simulation")
@@ -445,6 +450,17 @@ class HeatTransfer(QWidget):
             self.conductance = self.conductance_input.value()
 
             self.start_button.setText("Stop")
+
+            # אתחול רשימות הנתונים לניסוי חדש
+            self.time_history = []
+            self.body1_temp_history = []
+            self.body2_temp_history = []
+
+            # שמירת נתוני ההתחלה של הסימולציה
+            self.time_history.append(0.0)
+            self.body1_temp_history.append(self.body1.temperature)
+            self.body2_temp_history.append(self.body2.temperature)
+
             # נעילת פקדי הקלט בזמן הרצת הסימולציה
             self.body1_temperature_slider.setEnabled(False)
             self.body2_temperature_slider.setEnabled(False)
@@ -507,6 +523,11 @@ class HeatTransfer(QWidget):
 
         self.elapsed_time += self.dt
         self.simulation_time_display.setText(f"{self.elapsed_time:.1f} s")
+
+         # שמירת נתוני צעד הזמן הנוכחי
+        self.time_history.append(self.elapsed_time)
+        self.body1_temp_history.append(new_t1)
+        self.body2_temp_history.append(new_t2)
 
         temperature_difference = new_t1 - new_t2
 
