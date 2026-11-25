@@ -25,6 +25,11 @@ class GraphWindow(QWidget):
         super().__init__()
         self.main_window = main_window
         self.export_window = ExportWindow(self.main_window, self)
+
+        # מעקב אחר הגופים המוצגים כעת בגרף
+        self.body1_displayed = False
+        self.body2_displayed = False
+
         self.setupUI()
 
     # בניית ממשק המשתמש
@@ -105,6 +110,9 @@ class GraphWindow(QWidget):
 
         self.simulation_selector = QComboBox()
         self.simulation_selector.setFixedSize(214, 34)
+        self.simulation_selector.currentIndexChanged.connect(
+            self.simulation_changed
+        )
 
         # יצירת רשימה לבחירת הגוף
         self.body_select_label = QLabel("Select Body")
@@ -113,8 +121,8 @@ class GraphWindow(QWidget):
 
         self.body_selector = QComboBox()
         self.body_selector.setFixedSize(214, 34)
-        self.body_selector.addItems(["Body 1", "Body 2", "Both Bodies"])
-        self.body_selector.setCurrentText("Both Bodies")
+        self.body_selector.addItems(["Body 1", "Body 2"])
+        self.body_selector.setCurrentText("Body 1")
 
         # יצירת כפתור שרטוט
         self.draw_button = QPushButton("Draw")
@@ -287,7 +295,7 @@ class GraphWindow(QWidget):
         self.ax.spines["bottom"].set_color("#CBD5E1")
         self.figure.subplots_adjust(left=0.09, right=0.97, top=0.86, bottom=0.19)
 
-    # שרטוט הסימולציה והגופים שנבחרו
+    # הוספת עקומת הגוף שנבחר לגרף ללא מחיקת עקומות קיימות
     def draw_graph(self):
         if self.main_window is None:
             return
@@ -303,12 +311,10 @@ class GraphWindow(QWidget):
         material2 = simulation["material2"]
         selected_body = self.body_selector.currentText()
 
-        # ניקוי הגרף והגדרת כותרות, עיצוב ורשת
-        self.ax.clear()
-        self.style_axes(f"Simulation {number} - Temperature vs. Time")
-
-        # שרטוט הגוף הראשון
-        if selected_body == "Body 1" or selected_body == "Both Bodies":
+        # שרטוט הגוף שנבחר רק אם אינו מוצג כבר בגרף
+        if selected_body == "Body 1":
+            if self.body1_displayed:
+                return
             self.ax.plot(
                 simulation["time"],
                 simulation["temperature1"],
@@ -316,9 +322,10 @@ class GraphWindow(QWidget):
                 color="#DC2626",
                 linewidth=2.2,
             )
-
-        # שרטוט הגוף השני
-        if selected_body == "Body 2" or selected_body == "Both Bodies":
+            self.body1_displayed = True
+        elif selected_body == "Body 2":
+            if self.body2_displayed:
+                return
             self.ax.plot(
                 simulation["time"],
                 simulation["temperature2"],
@@ -326,25 +333,41 @@ class GraphWindow(QWidget):
                 color="#2871B8",
                 linewidth=2.2,
             )
+            self.body2_displayed = True
 
-        # הצגת המקרא, עדכון הגרף ואיפוס היסטוריית הניווט לתצוגה המלאה
+        # עדכון הכותרת, המקרא, גבולות הצירים והיסטוריית הניווט
+        self.ax.set_title(
+            f"Simulation {number} - Temperature vs. Time",
+            color="#23364D",
+            fontsize=13,
+            fontweight="bold",
+            pad=12,
+        )
         self.ax.legend(
             facecolor="#FFFFFF",
             edgecolor="#CBD5E1",
             frameon=True,
             fontsize=10,
         )
+        self.ax.relim()
+        self.ax.autoscale()
         self.canvas.draw()
         self.toolbar.update()
         self.toolbar.push_current()
 
-    # ניקוי הגרף המוצג ואיפוס היסטוריית הניווט
+    # ניקוי הגרף המוצג ואיפוס מעקב הגופים והיסטוריית הניווט
     def clear_graph(self):
+        self.body1_displayed = False
+        self.body2_displayed = False
         self.ax.clear()
         self.style_axes("Temperature vs. Time")
         self.canvas.draw()
         self.toolbar.update()
         self.toolbar.push_current()
+
+    # ניקוי הגרף ואיפוס מעקב הגופים בעת החלפת סימולציה נבחרת
+    def simulation_changed(self):
+        self.clear_graph()
 
     # עדכון רשימת הסימולציות והטבלה
     def refresh_simulations(self):

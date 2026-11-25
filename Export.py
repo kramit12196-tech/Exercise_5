@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
     QComboBox,
+    QFileDialog,
     QHBoxLayout,
     QLabel,
     QMessageBox,
@@ -203,7 +204,21 @@ class ExportWindow(QWidget):
         temperature1 = simulation["temperature1"]
         temperature2 = simulation["temperature2"]
 
-        file_name = f"Simulation_{number}.csv"
+        # פתיחת חלון שמירה לבחירת תיקייה ושם קובץ
+        default_name = f"Simulation_{number}.csv"
+        file_name, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Simulation Data",
+            default_name,
+            "CSV Files (*.csv)",
+        )
+
+        if file_name == "":
+            return False
+
+        # וידוא סיומת .csv לקובץ שנבחר
+        if not file_name.lower().endswith(".csv"):
+            file_name += ".csv"
 
         # כתיבת הנתונים לקובץ CSV
         with open(file_name, "w") as f:
@@ -229,6 +244,21 @@ class ExportWindow(QWidget):
 
         if len(selected_simulations) == 0:
             return False
+
+        # פתיחת חלון שמירה לבחירת תיקייה ושם קובץ
+        file_name, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Simulation Data",
+            "Heat_Transfer_Simulations.xlsx",
+            "Excel Files (*.xlsx)",
+        )
+
+        if file_name == "":
+            return False
+
+        # וידוא סיומת .xlsx לקובץ שנבחר
+        if not file_name.lower().endswith(".xlsx"):
+            file_name += ".xlsx"
 
         # יצירת חוברת עבודה והסרת גיליון ברירת המחדל הריק
         wb = Workbook()
@@ -260,7 +290,6 @@ class ExportWindow(QWidget):
             ws.column_dimensions["C"].width = 28
 
         # שמירת חוברת העבודה ופתיחתה באקסל
-        file_name = "Heat_Transfer_Simulations.xlsx"
         wb.save(file_name)
         os.startfile(file_name)
         return True
