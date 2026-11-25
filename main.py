@@ -308,8 +308,14 @@ class HeatTransfer(QWidget):
         self.body1_temperature_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
         )
-        self.body1_temperature_display.setFixedSize(160, 34)
+        self.body1_temperature_display.setFixedSize(132, 34)
         self.body1_temperature_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # יצירת מחוון מגמת הטמפרטורה של הגוף הראשון
+        self.body1_temperature_trend = QLabel("–")
+        self.body1_temperature_trend.setObjectName("tempTrend")
+        self.body1_temperature_trend.setFixedSize(24, 34)
+        self.body1_temperature_trend.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.body1_mass_label.setFixedSize(155, 34)
         self.body1_mass_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
@@ -373,10 +379,16 @@ class HeatTransfer(QWidget):
         body1_material_layout.addWidget(self.body1_material_label)
         body1_material_layout.addWidget(self.body1_material_selector)
 
+        body1_temp_value_layout = QHBoxLayout()
+        body1_temp_value_layout.setContentsMargins(0, 0, 0, 0)
+        body1_temp_value_layout.setSpacing(4)
+        body1_temp_value_layout.addWidget(self.body1_temperature_display)
+        body1_temp_value_layout.addWidget(self.body1_temperature_trend)
+
         body1_temperature_layout = QHBoxLayout()
         body1_temperature_layout.setSpacing(10)
         body1_temperature_layout.addWidget(self.body1_temperature_label)
-        body1_temperature_layout.addWidget(self.body1_temperature_display)
+        body1_temperature_layout.addLayout(body1_temp_value_layout)
 
         body1_mass_layout = QHBoxLayout()
         body1_mass_layout.setSpacing(10)
@@ -549,8 +561,14 @@ class HeatTransfer(QWidget):
         self.body2_temperature_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
         )
-        self.body2_temperature_display.setFixedSize(160, 34)
+        self.body2_temperature_display.setFixedSize(132, 34)
         self.body2_temperature_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # יצירת מחוון מגמת הטמפרטורה של הגוף השני
+        self.body2_temperature_trend = QLabel("–")
+        self.body2_temperature_trend.setObjectName("tempTrend")
+        self.body2_temperature_trend.setFixedSize(24, 34)
+        self.body2_temperature_trend.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.body2_mass_label.setFixedSize(155, 34)
         self.body2_mass_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
@@ -614,10 +632,16 @@ class HeatTransfer(QWidget):
         body2_material_layout.addWidget(self.body2_material_label)
         body2_material_layout.addWidget(self.body2_material_selector)
 
+        body2_temp_value_layout = QHBoxLayout()
+        body2_temp_value_layout.setContentsMargins(0, 0, 0, 0)
+        body2_temp_value_layout.setSpacing(4)
+        body2_temp_value_layout.addWidget(self.body2_temperature_display)
+        body2_temp_value_layout.addWidget(self.body2_temperature_trend)
+
         body2_temperature_layout = QHBoxLayout()
         body2_temperature_layout.setSpacing(10)
         body2_temperature_layout.addWidget(self.body2_temperature_label)
-        body2_temperature_layout.addWidget(self.body2_temperature_display)
+        body2_temperature_layout.addLayout(body2_temp_value_layout)
 
         body2_mass_layout = QHBoxLayout()
         body2_mass_layout.setSpacing(10)
@@ -863,6 +887,7 @@ class HeatTransfer(QWidget):
 
         else:  # עצירת הסימולציה
             self.timer.stop()
+            self.reset_temperature_trends()
             self.start_button.setText("Start")
             self.status_label.setText("Stopped")
             self.status_label.setStyleSheet(
@@ -894,6 +919,36 @@ class HeatTransfer(QWidget):
             self.conductance_input.setEnabled(True)
             self.update_start_button_state()
 
+    # עדכון חץ מגמת הטמפרטורה של גוף לפי השינוי הלא מעוגל בצעד הנוכחי
+    def update_temperature_trend(self, trend_label, previous_temp, new_temp):
+        diff = new_temp - previous_temp
+        if diff > 1e-9:
+            trend_label.setText("↑")
+            trend_label.setStyleSheet(
+                "color: #DC2626; font-size: 19px; font-weight: bold;"
+            )
+        elif diff < -1e-9:
+            trend_label.setText("↓")
+            trend_label.setStyleSheet(
+                "color: #2871B8; font-size: 19px; font-weight: bold;"
+            )
+        else:
+            trend_label.setText("–")
+            trend_label.setStyleSheet(
+                "color: #94A3B8; font-size: 19px; font-weight: bold;"
+            )
+
+    # איפוס שני מחווני מגמת הטמפרטורה לקו אפור ניטרלי
+    def reset_temperature_trends(self):
+        self.body1_temperature_trend.setText("–")
+        self.body1_temperature_trend.setStyleSheet(
+            "color: #94A3B8; font-size: 19px; font-weight: bold;"
+        )
+        self.body2_temperature_trend.setText("–")
+        self.body2_temperature_trend.setStyleSheet(
+            "color: #94A3B8; font-size: 19px; font-weight: bold;"
+        )
+
     def timer_method(self):
         t1 = self.body1.temperature
         t2 = self.body2.temperature
@@ -907,6 +962,10 @@ class HeatTransfer(QWidget):
 
         new_t1 = self.body1.add_heat(q1)
         new_t2 = self.body2.add_heat(q2)
+
+        # עדכון מחווני מגמת הטמפרטורה לפי השינוי הלא מעוגל של כל גוף
+        self.update_temperature_trend(self.body1_temperature_trend, t1, new_t1)
+        self.update_temperature_trend(self.body2_temperature_trend, t2, new_t2)
 
         self.body1_temperature_slider.setValue(int(new_t1))
         self.body2_temperature_slider.setValue(int(new_t2))
@@ -1027,6 +1086,7 @@ class HeatTransfer(QWidget):
         self.simulation_speed_changed("1x")
         self.status_label.setText("Ready")
         self.status_label.setStyleSheet("")
+        self.reset_temperature_trends()
 
 # הפעלת החלון הראשי וטעינת קובץ העיצוב
 if __name__ == "__main__":
