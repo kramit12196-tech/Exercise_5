@@ -12,7 +12,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-
 class GraphWindow(QWidget):
     # אתחול חלון הגרפים
     def __init__(self, main_window=None):
@@ -52,10 +51,12 @@ class GraphWindow(QWidget):
         # יצירת כפתור שרטוט
         self.draw_button = QPushButton("Draw")
         self.draw_button.setFixedSize(170, 36)
+        self.draw_button.clicked.connect(self.draw_graph)
 
         # יצירת כפתור ניקוי
         self.clear_button = QPushButton("Clear")
         self.clear_button.setFixedSize(170, 36)
+        self.clear_button.clicked.connect(self.clear_graph)
 
         # יצירת כפתור ייצוא נתונים
         self.export_button = QPushButton("Export to CSV")
@@ -79,6 +80,46 @@ class GraphWindow(QWidget):
         main_layout.addWidget(self.canvas, 1)
         main_layout.addLayout(controls_layout)
         self.setLayout(main_layout)
+
+    # שרטוט הטמפרטורה של הגוף הנבחר
+    def draw_graph(self):
+
+        # בדיקה שקיים חלון ראשי
+        if self.main_window is None:
+            return
+
+        # בדיקה שקיימים נתוני סימולציה
+        if len(self.main_window.time_history) == 0:
+            return
+
+        # קריאת הגוף שנבחר
+        selected_body = self.body_selector.currentText()
+
+        # שרטוט הגוף הראשון
+        if selected_body == "Body 1":
+            self.ax.plot(self.main_window.time_history, self.main_window.body1_temp_history, label="Body 1", color="red", linewidth=2)
+
+        # שרטוט הגוף השני
+        else:
+            self.ax.plot(self.main_window.time_history, self.main_window.body2_temp_history, label="Body 2", color="blue", linewidth=2)
+
+        # הצגת המקרא ועדכון הגרף
+        self.ax.legend()
+        self.canvas.draw()
+
+    # ניקוי השרטוט מחלון הגרפים
+    def clear_graph(self):
+
+        self.ax.clear() # ניקוי אזור השרטוט
+
+        # החזרת כותרות הגרף והצירים
+        self.ax.set_title("Temperature vs. Time")
+        self.ax.set_xlabel("Time (s)")
+        self.ax.set_ylabel("Temperature (°C)")
+        self.ax.grid(True)
+
+        # עדכון תצוגת הגרף
+        self.canvas.draw()
 
 
 # הפעלת חלון הגרפים לבדיקה ישירה
