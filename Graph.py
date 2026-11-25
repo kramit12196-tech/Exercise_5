@@ -4,17 +4,21 @@ from matplotlib.backends.backend_qtagg import (
     NavigationToolbar2QT,
 )
 from matplotlib.figure import Figure
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QColor, QFont
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QPushButton,
+    QScrollArea,
+    QSizePolicy,
     QTabWidget,
     QTableWidget,
     QTableWidgetItem,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -51,7 +55,6 @@ class GraphWindow(QWidget):
     def setupUI(self):
         self.setObjectName("graphWindow")
         self.setWindowTitle("Heat Transfer Graphs")
-        self.resize(1200, 880)
 
         # יצירת כרטיס הכותרת העליון
         self.header_card = QWidget()
@@ -70,7 +73,7 @@ class GraphWindow(QWidget):
         header_text_layout.addWidget(self.header_subtitle)
 
         header_layout = QHBoxLayout()
-        header_layout.setContentsMargins(18, 14, 18, 14)
+        header_layout.setContentsMargins(16, 8, 16, 8)
         header_layout.addLayout(header_text_layout)
         header_layout.addStretch()
         self.header_card.setLayout(header_layout)
@@ -83,17 +86,20 @@ class GraphWindow(QWidget):
         self.temperature_tab = QWidget()
         self.temperature_tab.setObjectName("graphTabPage")
 
-        self.figure = Figure(figsize=(8, 3.3))
+        self.figure = Figure(figsize=(8, 3.3), layout="constrained")
         self.canvas = FigureCanvasQTAgg(self.figure)
+        self.canvas.setMinimumSize(300, 160)
+        self.canvas.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
         self.ax = self.figure.add_subplot(111)
         self.style_axes("Temperature vs. Time")
 
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
-        self.toolbar.setObjectName("graphToolbar")
 
         temperature_tab_layout = QVBoxLayout()
-        temperature_tab_layout.setContentsMargins(14, 10, 14, 10)
-        temperature_tab_layout.setSpacing(6)
+        temperature_tab_layout.setContentsMargins(10, 6, 10, 6)
+        temperature_tab_layout.setSpacing(4)
         temperature_tab_layout.addWidget(self.canvas, 1)
         temperature_tab_layout.addWidget(self.toolbar)
         self.temperature_tab.setLayout(temperature_tab_layout)
@@ -102,8 +108,12 @@ class GraphWindow(QWidget):
         self.rate_tab = QWidget()
         self.rate_tab.setObjectName("graphTabPage")
 
-        self.rate_figure = Figure(figsize=(8, 3.3))
+        self.rate_figure = Figure(figsize=(8, 3.3), layout="constrained")
         self.rate_canvas = FigureCanvasQTAgg(self.rate_figure)
+        self.rate_canvas.setMinimumSize(300, 160)
+        self.rate_canvas.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
         self.rate_ax = self.rate_figure.add_subplot(111)
         self.style_axes(
             "Heat Transfer Rate vs. Time",
@@ -113,11 +123,10 @@ class GraphWindow(QWidget):
         )
 
         self.rate_toolbar = NavigationToolbar2QT(self.rate_canvas, self)
-        self.rate_toolbar.setObjectName("graphToolbar")
 
         rate_tab_layout = QVBoxLayout()
-        rate_tab_layout.setContentsMargins(14, 10, 14, 10)
-        rate_tab_layout.setSpacing(6)
+        rate_tab_layout.setContentsMargins(10, 6, 10, 6)
+        rate_tab_layout.setSpacing(4)
         rate_tab_layout.addWidget(self.rate_canvas, 1)
         rate_tab_layout.addWidget(self.rate_toolbar)
         self.rate_tab.setLayout(rate_tab_layout)
@@ -126,8 +135,12 @@ class GraphWindow(QWidget):
         self.cumulative_tab = QWidget()
         self.cumulative_tab.setObjectName("graphTabPage")
 
-        self.cumulative_figure = Figure(figsize=(8, 3.3))
+        self.cumulative_figure = Figure(figsize=(8, 3.3), layout="constrained")
         self.cumulative_canvas = FigureCanvasQTAgg(self.cumulative_figure)
+        self.cumulative_canvas.setMinimumSize(300, 160)
+        self.cumulative_canvas.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
         self.cumulative_ax = self.cumulative_figure.add_subplot(111)
         self.style_axes(
             "Cumulative Heat Transfer vs. Time",
@@ -139,11 +152,10 @@ class GraphWindow(QWidget):
         self.cumulative_toolbar = NavigationToolbar2QT(
             self.cumulative_canvas, self
         )
-        self.cumulative_toolbar.setObjectName("graphToolbar")
 
         cumulative_tab_layout = QVBoxLayout()
-        cumulative_tab_layout.setContentsMargins(14, 10, 14, 10)
-        cumulative_tab_layout.setSpacing(6)
+        cumulative_tab_layout.setContentsMargins(10, 6, 10, 6)
+        cumulative_tab_layout.setSpacing(4)
         cumulative_tab_layout.addWidget(self.cumulative_canvas, 1)
         cumulative_tab_layout.addWidget(self.cumulative_toolbar)
         self.cumulative_tab.setLayout(cumulative_tab_layout)
@@ -154,14 +166,18 @@ class GraphWindow(QWidget):
         self.graph_tabs.addTab(self.cumulative_tab, "Cumulative Heat Transfer")
         self.graph_tabs.setCurrentIndex(0)
 
-        # יצירת כרטיס הבקרה בצד ימין
+        # יצירת כרטיס הבקרה בצד ימין עם גלילה אנכית פנימית בעת הצורך
         self.controls_card = QWidget()
         self.controls_card.setObjectName("graphControlsCard")
-        self.controls_card.setFixedWidth(250)
+        self.controls_card.setFixedWidth(262)
+        self.controls_card.setMinimumHeight(180)
+        self.controls_card.setSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding
+        )
 
         self.controls_title = QLabel("Graph Controls")
         self.controls_title.setObjectName("cardTitle")
-        self.controls_title.setFixedHeight(28)
+        self.controls_title.setFixedHeight(24)
         self.controls_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         controls_divider = QWidget()
@@ -171,10 +187,10 @@ class GraphWindow(QWidget):
         # יצירת רשימה לבחירת הסימולציה
         self.simulation_select_label = QLabel("Select Simulation")
         self.simulation_select_label.setObjectName("secondaryLabel")
-        self.simulation_select_label.setFixedSize(214, 20)
+        self.simulation_select_label.setFixedSize(214, 17)
 
         self.simulation_selector = QComboBox()
-        self.simulation_selector.setFixedSize(214, 34)
+        self.simulation_selector.setFixedSize(214, 28)
         self.simulation_selector.currentIndexChanged.connect(
             self.simulation_changed
         )
@@ -182,10 +198,10 @@ class GraphWindow(QWidget):
         # יצירת רשימה לבחירת הגוף
         self.body_select_label = QLabel("Select Body")
         self.body_select_label.setObjectName("secondaryLabel")
-        self.body_select_label.setFixedSize(214, 20)
+        self.body_select_label.setFixedSize(214, 17)
 
         self.body_selector = QComboBox()
-        self.body_selector.setFixedSize(214, 34)
+        self.body_selector.setFixedSize(214, 28)
         self.body_selector.addItems(["Body 1", "Body 2"])
         self.body_selector.setCurrentText("Body 1")
 
@@ -195,30 +211,31 @@ class GraphWindow(QWidget):
         # יצירת כפתור שרטוט
         self.draw_button = QPushButton("Draw")
         self.draw_button.setObjectName("drawButton")
-        self.draw_button.setFixedSize(214, 38)
+        self.draw_button.setFixedSize(214, 32)
         self.draw_button.setEnabled(False)
         self.draw_button.clicked.connect(self.draw_graph)
 
         # יצירת כפתור ניקוי
         self.clear_button = QPushButton("Clear")
         self.clear_button.setObjectName("graphSecondaryButton")
-        self.clear_button.setFixedSize(214, 38)
+        self.clear_button.setFixedSize(214, 32)
         self.clear_button.clicked.connect(self.clear_graph)
 
         # יצירת כפתור ייצוא נתונים
         self.export_button = QPushButton("Export Data")
         self.export_button.setObjectName("graphSecondaryButton")
-        self.export_button.setFixedSize(214, 38)
+        self.export_button.setFixedSize(214, 32)
         self.export_button.clicked.connect(self.open_export_window)
 
-        # יצירת אזור המשוואה השולטת מתחת לכפתור הייצוא
+        # יצירת אזור המשוואה השולטת כיחידה עצמאית שניתן להסתיר במצב טבלה מורחבת
+        self.equation_section = QWidget()
         equation_divider = QWidget()
         equation_divider.setObjectName("dividerLine")
         equation_divider.setFixedHeight(1)
 
         self.equation_heading = QLabel("Governing Equation")
         self.equation_heading.setObjectName("equationHeading")
-        self.equation_heading.setFixedHeight(22)
+        self.equation_heading.setFixedHeight(20)
         self.equation_heading.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.equation_card = QWidget()
@@ -261,8 +278,8 @@ class GraphWindow(QWidget):
         self.equation_explanation_label.setWordWrap(True)
 
         equation_card_layout = QVBoxLayout()
-        equation_card_layout.setContentsMargins(12, 10, 12, 10)
-        equation_card_layout.setSpacing(6)
+        equation_card_layout.setContentsMargins(10, 6, 10, 6)
+        equation_card_layout.setSpacing(3)
         equation_card_layout.addWidget(self.equation_subheading1)
         equation_card_layout.addWidget(self.equation_canvas1)
         equation_card_layout.addWidget(self.equation_mid_divider)
@@ -272,37 +289,65 @@ class GraphWindow(QWidget):
         equation_card_layout.addWidget(self.equation_explanation_label)
         self.equation_card.setLayout(equation_card_layout)
 
-        # סידור רכיבי הבקרה בתוך כרטיס הבקרה
+        equation_section_layout = QVBoxLayout()
+        equation_section_layout.setContentsMargins(0, 4, 0, 0)
+        equation_section_layout.setSpacing(4)
+        equation_section_layout.addWidget(equation_divider)
+        equation_section_layout.addWidget(self.equation_heading)
+        equation_section_layout.addWidget(self.equation_card)
+        self.equation_section.setLayout(equation_section_layout)
+
+        # סידור רכיבי הבקרה בתוך מכל נגלל אנכית בעת הצורך בלבד
+        controls_content = QWidget()
+        controls_content.setObjectName("controlsScrollContent")
+
         controls_layout = QVBoxLayout()
-        controls_layout.setContentsMargins(18, 12, 18, 14)
-        controls_layout.setSpacing(8)
+        controls_layout.setContentsMargins(14, 8, 14, 8)
+        controls_layout.setSpacing(5)
         controls_layout.addWidget(self.controls_title)
         controls_layout.addWidget(controls_divider)
-        controls_layout.addSpacing(4)
         controls_layout.addWidget(self.simulation_select_label)
         controls_layout.addWidget(self.simulation_selector)
-        controls_layout.addSpacing(4)
         controls_layout.addWidget(self.body_select_label)
         controls_layout.addWidget(self.body_selector)
-        controls_layout.addSpacing(10)
         controls_layout.addWidget(self.draw_button)
         controls_layout.addWidget(self.clear_button)
         controls_layout.addWidget(self.export_button)
-        controls_layout.addSpacing(8)
-        controls_layout.addWidget(equation_divider)
-        controls_layout.addWidget(self.equation_heading)
-        controls_layout.addWidget(self.equation_card)
+        controls_layout.addWidget(self.equation_section)
         controls_layout.addStretch()
-        self.controls_card.setLayout(controls_layout)
+        controls_content.setLayout(controls_layout)
+
+        self.controls_scroll_area = QScrollArea()
+        self.controls_scroll_area.setObjectName("controlsScrollArea")
+        self.controls_scroll_area.setWidgetResizable(True)
+        self.controls_scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.controls_scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.controls_scroll_area.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        self.controls_scroll_area.setWidget(controls_content)
+
+        controls_card_layout = QVBoxLayout()
+        controls_card_layout.setContentsMargins(2, 2, 2, 2)
+        controls_card_layout.addWidget(self.controls_scroll_area)
+        self.controls_card.setLayout(controls_card_layout)
 
         # הצגת משוואת ברירת המחדל עבור לשונית הטמפרטורה
         self.update_equation_display(0)
 
-        # סידור אזור הגרפים והבקרה בשורה העליונה
+        # סידור אזור הגרפים והבקרה במכל העליון הגמיש
+        self.top_container = QWidget()
+        self.top_container.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
         top_content_layout = QHBoxLayout()
+        top_content_layout.setContentsMargins(0, 0, 0, 0)
         top_content_layout.setSpacing(14)
         top_content_layout.addWidget(self.graph_tabs, 1)
         top_content_layout.addWidget(self.controls_card)
+        self.top_container.setLayout(top_content_layout)
 
         # יצירת כרטיס טבלת פרמטרי הסימולציה
         self.table_card = QWidget()
@@ -317,7 +362,7 @@ class GraphWindow(QWidget):
         # יצירת כפתור להצגה והסתרה של טבלת הפרמטרים
         self.toggle_table_button = QPushButton("Show Simulation Parameters ▼")
         self.toggle_table_button.setObjectName("toggleTableButton")
-        self.toggle_table_button.setFixedHeight(30)
+        self.toggle_table_button.setFixedHeight(26)
         self.toggle_table_button.clicked.connect(self.toggle_parameters_table)
 
         table_header_layout = QHBoxLayout()
@@ -332,17 +377,32 @@ class GraphWindow(QWidget):
         self.table_divider.setFixedHeight(1)
         self.table_divider.setVisible(False)
 
-        # הגדרת טבלת הפרמטרים
+        # הגדרת טבלת הפרמטרים בגובה מחושב לכל 12 השורות עם גלילה בעת הצורך
+        self.table_row_height = 22
+        self.table_header_height = 28
         self.parameters_table = QTableWidget(12, 2)
         self.parameters_table.setObjectName("parametersTable")
         self.parameters_table.setHorizontalHeaderLabels(["Category", "Parameter"])
-        self.parameters_table.setColumnWidth(0, 110)
-        self.parameters_table.setColumnWidth(1, 290)
+        self.parameters_table.setColumnWidth(0, 105)
+        self.parameters_table.setColumnWidth(1, 275)
         self.parameters_table.setAlternatingRowColors(True)
         self.parameters_table.verticalHeader().setVisible(False)
-        self.parameters_table.verticalHeader().setDefaultSectionSize(26)
-        self.parameters_table.horizontalHeader().setFixedHeight(32)
-        self.parameters_table.setFixedHeight(348)
+        self.parameters_table.verticalHeader().setDefaultSectionSize(
+            self.table_row_height
+        )
+        self.parameters_table.horizontalHeader().setFixedHeight(
+            self.table_header_height
+        )
+        self.parameters_table.setMinimumHeight(100)
+        self.parameters_table.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
+        self.parameters_table.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        self.parameters_table.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
         self.parameters_table.setEditTriggers(
             QTableWidget.EditTrigger.NoEditTriggers
         )
@@ -396,21 +456,121 @@ class GraphWindow(QWidget):
                 )
 
         table_card_layout = QVBoxLayout()
-        table_card_layout.setContentsMargins(16, 12, 16, 12)
-        table_card_layout.setSpacing(10)
+        table_card_layout.setContentsMargins(14, 8, 14, 8)
+        table_card_layout.setSpacing(6)
         table_card_layout.addLayout(table_header_layout)
         table_card_layout.addWidget(self.table_divider)
-        table_card_layout.addWidget(self.parameters_table)
+        table_card_layout.addWidget(self.parameters_table, 1)
         self.table_card.setLayout(table_card_layout)
+        self.table_card.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum
+        )
 
-        # סידור כל הכרטיסים בחלון הראשי של הגרפים
-        main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(16, 16, 16, 16)
-        main_layout.setSpacing(14)
-        main_layout.addWidget(self.header_card)
-        main_layout.addLayout(top_content_layout, 1)
-        main_layout.addWidget(self.table_card)
-        self.setLayout(main_layout)
+        # סידור כל הכרטיסים בחלון הראשי של הגרפים במרווחים קומפקטיים
+        self.main_layout = QVBoxLayout()
+        self.main_layout.setContentsMargins(12, 10, 12, 10)
+        self.main_layout.setSpacing(8)
+        self.main_layout.addWidget(self.header_card, 0)
+        self.main_layout.addWidget(self.top_container, 1)
+        self.main_layout.addWidget(self.table_card, 0)
+        self.setLayout(self.main_layout)
+
+        # עיצוב קומפקטי ואחיד לכל שלושת סרגלי הכלים לאחר הרכבת עץ החלון
+        self.style_toolbar(self.toolbar)
+        self.style_toolbar(self.rate_toolbar)
+        self.style_toolbar(self.cumulative_toolbar)
+
+        # התאמת גודל ומיקום החלון לשטח המסך הזמין (ללא שורת המשימות)
+        self.fit_to_screen()
+
+    # חישוב גודל התחלתי מתאים למסך הזמין ומרכוז החלון
+    def fit_to_screen(self):
+        screen = QApplication.primaryScreen()
+        if screen is not None:
+            available = screen.availableGeometry()
+            min_width = min(760, max(560, available.width() - 40))
+            min_height = min(500, max(420, available.height() - 40))
+            self.setMinimumSize(min_width, min_height)
+
+            width = min(1200, int(available.width() * 0.92))
+            height = min(780, int(available.height() * 0.92))
+            width = max(width, min_width)
+            height = max(height, min_height)
+            self.resize(width, height)
+
+            x = available.x() + (available.width() - width) // 2
+            y = available.y() + (available.height() - height) // 2
+            self.move(x, y)
+        else:
+            self.setMinimumSize(760, 500)
+            self.resize(1140, 750)
+
+    # חישוב הגובה הנדרש להצגת כל 12 שורות הטבלה, הכותרת, המסגרת ופס הגלילה האופקי
+    def calculate_required_table_height(self):
+        total_rows_height = (
+            self.parameters_table.rowCount() * self.table_row_height
+        )
+        frame_height = self.parameters_table.frameWidth() * 2 + 4
+
+        # בדיקה האם נדרש פס גלילה אופקי לפי סכום רוחבי העמודות
+        total_columns_width = 0
+        for col in range(self.parameters_table.columnCount()):
+            total_columns_width += self.parameters_table.columnWidth(col)
+
+        available_table_width = max(100, self.width() - 56)
+        hbar_height = 0
+        if total_columns_width > available_table_width:
+            hbar_height = (
+                self.parameters_table.horizontalScrollBar().sizeHint().height()
+            )
+
+        return (
+            self.table_header_height
+            + total_rows_height
+            + frame_height
+            + hbar_height
+        )
+
+    # התאמת גובה כרטיס הטבלה המורחבת כך שכל 12 השורות יוצגו בגודל רגיל ללא הגדלת החלון
+    def update_expanded_table_height(self):
+        if not self.parameters_table.isVisible():
+            return
+
+        required_table_h = self.calculate_required_table_height()
+        card_overhead = 56
+        min_top_h = 278
+        header_h = max(52, self.header_card.sizeHint().height())
+        available_for_table_card = max(
+            165, self.height() - header_h - 38 - min_top_h
+        )
+        target_card_h = min(
+            required_table_h + card_overhead, available_for_table_card
+        )
+        self.table_card.setMaximumHeight(target_card_h)
+
+    # שמירת פרופורציות הטבלה המורחבת בעת שינוי גודל החלון ידנית
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.parameters_table.isVisible():
+            self.update_expanded_table_height()
+
+    # עיצוב קומפקטי ואחיד לסרגל הכלים של Matplotlib בכל לשוניות הגרפים
+    def style_toolbar(self, toolbar):
+        toolbar.setObjectName("graphToolbar")
+        toolbar.style().unpolish(toolbar)
+        toolbar.style().polish(toolbar)
+        toolbar.setIconSize(QSize(16, 16))
+        toolbar.setFixedHeight(29)
+        toolbar.setContentsMargins(2, 1, 2, 1)
+        if toolbar.layout() is not None:
+            toolbar.layout().setContentsMargins(2, 1, 2, 1)
+            toolbar.layout().setSpacing(3)
+        for button in toolbar.findChildren(QToolButton):
+            if button.objectName() != "qt_toolbar_ext_button":
+                button.style().unpolish(button)
+                button.style().polish(button)
+                button.setIconSize(QSize(16, 16))
+                button.setFixedSize(24, 24)
 
     # עיצוב אחיד לצירים, כותרות ורשת הגרף
     def style_axes(
@@ -436,7 +596,6 @@ class GraphWindow(QWidget):
         ax.spines["right"].set_color("#E2E8F0")
         ax.spines["left"].set_color("#CBD5E1")
         ax.spines["bottom"].set_color("#CBD5E1")
-        figure.subplots_adjust(left=0.10, right=0.97, top=0.88, bottom=0.17)
 
     # עדכון זמינות בחירת הגוף ותצוגת המשוואה בעת מעבר בין לשוניות הגרפים
     def tab_changed(self, index):
@@ -475,7 +634,7 @@ class GraphWindow(QWidget):
                 self.equation_canvas1,
                 r"$\Delta T = \frac{\Delta Q}{m \cdot c}$",
                 17,
-                58,
+                52,
             )
 
             self.equation_mid_divider.setVisible(False)
@@ -487,13 +646,13 @@ class GraphWindow(QWidget):
                 self.equation_canvas2,
                 r"$T_{\mathrm{new}} = T + \Delta T$",
                 15,
-                36,
+                32,
             )
 
             explanation = (
-                "<p style='margin:0px 0px 4px 0px;'>"
+                "<p style='margin:0px 0px 3px 0px;'>"
                 "<b style='color:#23364D;'>m</b> &mdash; Mass (kg)</p>"
-                "<p style='margin:0px 0px 4px 0px;'>"
+                "<p style='margin:0px 0px 3px 0px;'>"
                 "<b style='color:#23364D;'>c</b> &mdash; Specific heat capacity "
                 "(J/(kg&middot;&deg;C))</p>"
                 "<p style='margin:0px;'>"
@@ -508,7 +667,7 @@ class GraphWindow(QWidget):
                 self.equation_canvas1,
                 r"$\dot{Q}_{1\to2} = \sigma(T_1 - T_2)$",
                 15,
-                50,
+                46,
             )
 
             self.equation_mid_divider.setVisible(False)
@@ -516,13 +675,13 @@ class GraphWindow(QWidget):
             self.equation_canvas2.setVisible(False)
 
             explanation = (
-                "<p style='margin:0px 0px 4px 0px;'>"
+                "<p style='margin:0px 0px 3px 0px;'>"
                 "<b style='color:#23364D;'>&sigma;</b> &mdash; Thermal conductance "
                 "(W/&deg;C)</p>"
-                "<p style='margin:0px 0px 6px 0px;'>"
+                "<p style='margin:0px 0px 4px 0px;'>"
                 "<b style='color:#23364D;'>T<sub>1</sub>, T<sub>2</sub></b> "
                 "&mdash; Temperature (&deg;C)</p>"
-                "<p style='margin:0px 0px 3px 0px; color:#0D9488;'>"
+                "<p style='margin:0px 0px 2px 0px; color:#0D9488;'>"
                 "Positive: Body 1 &rarr; Body 2</p>"
                 "<p style='margin:0px;'>"
                 "Negative: Body 2 &rarr; Body 1</p>"
@@ -536,7 +695,7 @@ class GraphWindow(QWidget):
                 self.equation_canvas1,
                 r"$Q(t) = \int_0^t \dot{Q}(\tau)\,d\tau$",
                 14,
-                64,
+                54,
             )
 
             self.equation_mid_divider.setVisible(True)
@@ -549,15 +708,15 @@ class GraphWindow(QWidget):
                 self.equation_canvas2,
                 r"$Q_{i+1} = Q_i + \dot{Q}_i\Delta t_i$",
                 14,
-                40,
+                34,
             )
 
             explanation = (
-                "<p style='margin:0px 0px 4px 0px;'>"
+                "<p style='margin:0px 0px 3px 0px;'>"
                 "<b style='color:#23364D;'>Q</b> &mdash; Net transferred energy (J)</p>"
-                "<p style='margin:0px 0px 4px 0px;'>"
+                "<p style='margin:0px 0px 3px 0px;'>"
                 "<b style='color:#23364D;'>Q&#775;</b> &mdash; Heat transfer rate (W)</p>"
-                "<p style='margin:0px 0px 5px 0px;'>"
+                "<p style='margin:0px 0px 4px 0px;'>"
                 "<b style='color:#23364D;'>&Delta;t</b> &mdash; Simulation time step (s)</p>"
                 "<p style='margin:0px; color:#64748B;'>Displayed in kJ</p>"
             )
@@ -939,16 +1098,34 @@ class GraphWindow(QWidget):
                         item.setFont(font)
                     self.parameters_table.setItem(row, column, item)
 
-    # הצגה או הסתרה של טבלת פרמטרי הסימולציה באותו חלון
+        # עדכון גובה הטבלה המורחבת אם נוספו עמודות הדורשות פס גלילה אופקי
+        if self.parameters_table.isVisible():
+            self.update_expanded_table_height()
+
+    # מעבר בין מצב טבלה מקופלת (גרף מרבי + משוואה) למצב טבלה מורחבת (כל 12 השורות)
     def toggle_parameters_table(self):
         is_visible = not self.parameters_table.isVisible()
         self.parameters_table.setVisible(is_visible)
         self.table_divider.setVisible(is_visible)
+        self.equation_section.setVisible(not is_visible)
 
         if is_visible:
+            self.table_card.setSizePolicy(
+                QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+            )
+            self.update_expanded_table_height()
+            self.main_layout.setStretch(1, 1)
+            self.main_layout.setStretch(2, 2)
             self.toggle_table_button.setText("Hide Simulation Parameters ▲")
         else:
+            self.table_card.setMaximumHeight(16777215)
+            self.table_card.setSizePolicy(
+                QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum
+            )
+            self.main_layout.setStretch(1, 1)
+            self.main_layout.setStretch(2, 0)
             self.toggle_table_button.setText("Show Simulation Parameters ▼")
+            self.update_equation_display(self.graph_tabs.currentIndex())
 
     # פתיחת חלון ייצוא הנתונים
     def open_export_window(self):

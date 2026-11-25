@@ -359,13 +359,13 @@
 
 #graphWindow QLabel#headerTitle {
     color: #FFFFFF;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
 }
 
 #graphWindow QLabel#headerSubtitle {
     color: #CBD5E1;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 #graphPlotCard,
@@ -374,6 +374,12 @@
     background-color: #FFFFFF;
     border: 1px solid #E3E8EE;
     border-radius: 10px;
+}
+
+#graphWindow QScrollArea#controlsScrollArea,
+#graphWindow QWidget#controlsScrollContent {
+    background-color: transparent;
+    border: none;
 }
 
 #graphWindow QLabel#sectionTitle,
@@ -482,7 +488,7 @@
     gridline-color: #E3E8EE;
     border: 1px solid #CBD5E1;
     border-radius: 6px;
-    font-size: 13px;
+    font-size: 12px;
     font-family: "Segoe UI";
     selection-background-color: #DBEAFE;
     selection-color: #23364D;
@@ -502,8 +508,8 @@
     color: #FFFFFF;
     border: none;
     border-right: 1px solid #334A66;
-    padding: 5px 8px;
-    font-size: 13px;
+    padding: 4px 8px;
+    font-size: 12px;
     font-weight: bold;
 }
 
@@ -511,7 +517,7 @@
 #graphWindow QLabel#categoryGeneral {
     background-color: #E7EDF5;
     color: #23364D;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
     border-left: 4px solid #64748B;
     border-bottom: 2px solid #94A3B8;
@@ -520,7 +526,7 @@
 #graphWindow QLabel#categoryBody1 {
     background-color: #FBE9E9;
     color: #B91C1C;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
     border-left: 4px solid #DC2626;
     border-bottom: 2px solid #94A3B8;
@@ -529,7 +535,7 @@
 #graphWindow QLabel#categoryBody2 {
     background-color: #E8F0FA;
     color: #215B99;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
     border-left: 4px solid #2871B8;
 }
@@ -537,7 +543,7 @@
 #graphWindow QLabel#tableSeparatorParam {
     background-color: transparent;
     color: #23364D;
-    font-size: 13px;
+    font-size: 12px;
     padding: 0px 2px;
     border-bottom: 2px solid #94A3B8;
 }
@@ -545,7 +551,7 @@
 #graphWindow QLabel#tableSeparatorValue {
     background-color: transparent;
     color: #23364D;
-    font-size: 13px;
+    font-size: 12px;
     padding: 0px;
     border-bottom: 2px solid #94A3B8;
 }
@@ -553,7 +559,7 @@
 #graphWindow QLabel#tableSeparatorValueVariable {
     background-color: transparent;
     color: #B45309;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     padding: 0px;
     border-bottom: 2px solid #94A3B8;
@@ -565,16 +571,28 @@
     color: #23364D;
     border: 1px solid #E3E8EE;
     border-radius: 6px;
-    spacing: 4px;
-    padding: 1px 6px;
+    spacing: 3px;
+    padding: 1px 4px;
+    margin: 0px;
+}
+
+#graphWindow QToolBar#graphToolbar::separator {
+    background-color: #CBD5E1;
+    width: 1px;
+    margin: 4px 2px;
 }
 
 #graphWindow QToolBar#graphToolbar QToolButton {
     background-color: transparent;
     color: #23364D;
     border: 1px solid transparent;
-    border-radius: 5px;
+    border-radius: 4px;
     padding: 2px;
+    margin: 0px;
+    min-width: 18px;
+    max-width: 18px;
+    min-height: 18px;
+    max-height: 18px;
 }
 
 #graphWindow QToolBar#graphToolbar QToolButton:hover {
@@ -599,7 +617,7 @@
 #graphWindow QToolBar#graphToolbar QLabel {
     color: #64748B;
     font-size: 11px;
-    padding-right: 6px;
+    padding: 0px 6px 0px 0px;
 }
 
 /* Browser-style graph tabs */
