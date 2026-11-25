@@ -358,6 +358,21 @@ class HeatTransfer(QWidget):
         main_layout.addStretch()
         self.setLayout(main_layout)
 
+        # חיבור הסליידרים למתודות עדכון הטמפרטורה
+        self.body1_temperature_slider.valueChanged.connect(self.left_temperature_changed)
+        self.body2_temperature_slider.valueChanged.connect(self.right_temperature_changed)
+
+    # עדכון הטמפרטורה והצבע של הגוף השמאלי
+    def left_temperature_changed(self, temperature):
+        self.body1_temperature_display.setText(str(temperature))
+        red = int(temperature / 200 * 255)
+        self.body1_visual.setStyleSheet(f"background-color: rgb({red}, 0, 0);")
+
+    def right_temperature_changed(self, temperature):
+        self.body2_temperature_display.setText(str(temperature))
+        red = int(temperature / 200 * 255)
+        self.body2_visual.setStyleSheet(f"background-color: rgb({red}, 0, 0);")
+
     # פתיחת חלון אודות
     def open_about(self):
         self.about_window.show()
