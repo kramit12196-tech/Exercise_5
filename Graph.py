@@ -14,8 +14,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-import os
-
 from Export import ExportWindow
 
 class GraphWindow(QWidget):
@@ -270,41 +268,6 @@ class GraphWindow(QWidget):
     def open_export_window(self):
         self.export_window.refresh_options()
         self.export_window.show()
-
-    # ייצוא נתוני הסימולציה שנבחרה לקובץ CSV
-    def export_to_csv(self):
-
-        if self.main_window is None:
-            return
-
-        index = self.simulation_selector.currentIndex()
-
-        if index == -1:
-            return
-
-        # שליפת נתוני הסימולציה
-        simulation = self.main_window.simulation_history[index]
-
-        time = simulation["time"]
-        temperature1 = simulation["temperature1"]
-        temperature2 = simulation["temperature2"]
-
-        # הגדרת שם הקובץ לפי מספר הסימולציה
-        number = simulation["number"]
-        file_name = f"Simulation_{number}.csv"
-
-        # יצירת הקובץ וכתיבת הנתונים
-        with open(file_name, "w") as f:
-
-            f.write("Time (s),Body 1 Temperature (deg C),Body 2 Temperature (deg C)\n")
-
-            for i in range(len(time)):
-                f.write(f"{time[i]},{temperature1[i]},{temperature2[i]}\n")
-
-        # פתיחת הקובץ באופן אוטומטי
-        os.startfile(file_name)
-
-
 
 # הפעלת חלון הגרפים לבדיקה ישירה
 if __name__ == "__main__":

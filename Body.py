@@ -2,23 +2,20 @@
 # מחלקה המייצגת גוף פיזיקלי
 class Body:
 
-    # אתחול תכונות הגוף
+        # אתחול תכונות הגוף ובדיקת תקינות הערכים
     def __init__(self, mass, heat_capacity, temperature):
-        self.mass = mass  # מסת הגוף
-        self.heat_capacity = heat_capacity  # קיבול חום של הגוף
-        self.temperature = temperature  # טמפרטורת הגוף
 
-        if self.mass > 0:
+        if mass > 0:
             self.mass = mass
         else:
-            self.mass = 0
-        
-        if self.heat_capacity > 0:
+            self.mass = 0.01
+
+        if heat_capacity > 0:
             self.heat_capacity = heat_capacity
         else:
-            self.heat_capacity = 0  
-        
-        if self.temperature >= 0:
+            self.heat_capacity = 0.01
+
+        if temperature >= 0:
             self.temperature = temperature
         else:
             self.temperature = 0

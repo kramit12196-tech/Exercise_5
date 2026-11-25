@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Generated simulation export files
+Simulation_*.csv
+Heat_Transfer_Simulations.xlsx

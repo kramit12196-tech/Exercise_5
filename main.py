@@ -27,6 +27,9 @@ class HeatTransfer(QWidget):
         self.temperature_tolerance = 0.1
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.timer_method)
+
+        self.body1_temperature = 200.0
+        self.body2_temperature = 0.0
         
         self.setupUI()
 
@@ -39,7 +42,7 @@ class HeatTransfer(QWidget):
     # בניית ממשק המשתמש
     def setupUI(self):
         self.setWindowTitle("Heat Transfer Simulation")
-        self.resize(1060, 500)
+        self.resize(1020, 500)
 
         # יצירת הכותרת וכפתור אודות
         self.title_label = QLabel("Heat Transfer Simulation")
@@ -93,22 +96,19 @@ class HeatTransfer(QWidget):
         self.conductance_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.conductance_input = QDoubleSpinBox()
-        self.conductance_input.setFixedSize(95, 30)
+        self.conductance_input.setFixedSize(135, 30)
         self.conductance_input.setMinimum(0.01)
         self.conductance_input.setValue(1.00)
+        self.conductance_input.setSuffix(" W/°C")
         self.conductance_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.conductance_input.setButtonSymbols(
             QDoubleSpinBox.ButtonSymbols.NoButtons
         )
 
-        self.conductance_unit = QLabel("W/°C")
-        self.conductance_unit.setFixedSize(45, 30)
-
         conductance_input_layout = QHBoxLayout()
         conductance_input_layout.setSpacing(6)
         conductance_input_layout.addStretch()
         conductance_input_layout.addWidget(self.conductance_input)
-        conductance_input_layout.addWidget(self.conductance_unit)
         conductance_input_layout.addStretch()
 
         self.connector = QLabel()
@@ -177,52 +177,48 @@ class HeatTransfer(QWidget):
 
         # יצירת כותרת ותוויות הנתונים של הגוף הראשון
         self.body1_parameters_title = QLabel("Body 1 Parameters")
-        self.body1_parameters_title.setFixedSize(331, 26)
+        self.body1_parameters_title.setFixedSize(308, 26)
         self.body1_parameters_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.body1_temperature_label = QLabel("Temperature")
-        self.body1_temperature_display = QLabel("200")
-        self.body1_temperature_unit = QLabel("°C")
+        self.body1_temperature_display = QLabel("200.00 °C")
         self.body1_mass_label = QLabel("Mass")
-        self.body1_mass_unit = QLabel("kg")
         self.body1_heat_capacity_label = QLabel("Specific Heat Capacity")
-        self.body1_heat_capacity_unit = QLabel("J/(kg·°C)")
 
         self.body1_temperature_label.setFixedSize(155, 30)
         self.body1_temperature_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
         )
-        self.body1_temperature_display.setFixedSize(85, 30)
+        self.body1_temperature_display.setFixedSize(145, 30)
         self.body1_temperature_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.body1_temperature_display.setStyleSheet(
             "background-color: white; border: 1px solid gray;"
         )
-        self.body1_temperature_unit.setFixedSize(75, 30)
         self.body1_mass_label.setFixedSize(155, 30)
         self.body1_mass_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
         )
-        self.body1_mass_unit.setFixedSize(75, 30)
         self.body1_heat_capacity_label.setFixedSize(155, 30)
         self.body1_heat_capacity_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
         )
-        self.body1_heat_capacity_unit.setFixedSize(75, 30)
 
         # יצירת פקדי הקלט של הגוף הראשון
         self.body1_mass_input = QDoubleSpinBox()
-        self.body1_mass_input.setFixedSize(85, 30)
+        self.body1_mass_input.setFixedSize(145, 30)
         self.body1_mass_input.setMinimum(0.01)
         self.body1_mass_input.setValue(10.0)
+        self.body1_mass_input.setSuffix(" kg")
         self.body1_mass_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.body1_mass_input.setButtonSymbols(
             QDoubleSpinBox.ButtonSymbols.NoButtons
         )
 
         self.body1_heat_capacity_input = QDoubleSpinBox()
-        self.body1_heat_capacity_input.setFixedSize(85, 30)
+        self.body1_heat_capacity_input.setFixedSize(145, 30)
         self.body1_heat_capacity_input.setMinimum(0.01)
         self.body1_heat_capacity_input.setValue(0.40)
+        self.body1_heat_capacity_input.setSuffix(" J/(kg·°C)")
         self.body1_heat_capacity_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.body1_heat_capacity_input.setButtonSymbols(
             QDoubleSpinBox.ButtonSymbols.NoButtons
@@ -233,19 +229,16 @@ class HeatTransfer(QWidget):
         body1_temperature_layout.setSpacing(8)
         body1_temperature_layout.addWidget(self.body1_temperature_label)
         body1_temperature_layout.addWidget(self.body1_temperature_display)
-        body1_temperature_layout.addWidget(self.body1_temperature_unit)
 
         body1_mass_layout = QHBoxLayout()
         body1_mass_layout.setSpacing(8)
         body1_mass_layout.addWidget(self.body1_mass_label)
         body1_mass_layout.addWidget(self.body1_mass_input)
-        body1_mass_layout.addWidget(self.body1_mass_unit)
 
         body1_heat_capacity_layout = QHBoxLayout()
         body1_heat_capacity_layout.setSpacing(8)
         body1_heat_capacity_layout.addWidget(self.body1_heat_capacity_label)
         body1_heat_capacity_layout.addWidget(self.body1_heat_capacity_input)
-        body1_heat_capacity_layout.addWidget(self.body1_heat_capacity_unit)
 
         body1_layout = QVBoxLayout()
         body1_layout.setSpacing(10)
@@ -323,52 +316,48 @@ class HeatTransfer(QWidget):
 
         # יצירת כותרת ותוויות הנתונים של הגוף השני
         self.body2_parameters_title = QLabel("Body 2 Parameters")
-        self.body2_parameters_title.setFixedSize(331, 26)
+        self.body2_parameters_title.setFixedSize(308, 26)
         self.body2_parameters_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.body2_temperature_label = QLabel("Temperature")
-        self.body2_temperature_display = QLabel("0")
-        self.body2_temperature_unit = QLabel("°C")
+        self.body2_temperature_display = QLabel("0.00 °C")
         self.body2_mass_label = QLabel("Mass")
-        self.body2_mass_unit = QLabel("kg")
         self.body2_heat_capacity_label = QLabel("Specific Heat Capacity")
-        self.body2_heat_capacity_unit = QLabel("J/(kg·°C)")
 
         self.body2_temperature_label.setFixedSize(155, 30)
         self.body2_temperature_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
         )
-        self.body2_temperature_display.setFixedSize(85, 30)
+        self.body2_temperature_display.setFixedSize(145, 30)
         self.body2_temperature_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.body2_temperature_display.setStyleSheet(
             "background-color: white; border: 1px solid gray;"
         )
-        self.body2_temperature_unit.setFixedSize(75, 30)
         self.body2_mass_label.setFixedSize(155, 30)
         self.body2_mass_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
         )
-        self.body2_mass_unit.setFixedSize(75, 30)
         self.body2_heat_capacity_label.setFixedSize(155, 30)
         self.body2_heat_capacity_label.setAlignment(
             Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
         )
-        self.body2_heat_capacity_unit.setFixedSize(75, 30)
 
         # יצירת פקדי הקלט של הגוף השני
         self.body2_mass_input = QDoubleSpinBox()
-        self.body2_mass_input.setFixedSize(85, 30)
+        self.body2_mass_input.setFixedSize(145, 30)
         self.body2_mass_input.setMinimum(0.01)
         self.body2_mass_input.setValue(10.0)
+        self.body2_mass_input.setSuffix(" kg")
         self.body2_mass_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.body2_mass_input.setButtonSymbols(
             QDoubleSpinBox.ButtonSymbols.NoButtons
         )
 
         self.body2_heat_capacity_input = QDoubleSpinBox()
-        self.body2_heat_capacity_input.setFixedSize(85, 30)
+        self.body2_heat_capacity_input.setFixedSize(145, 30)
         self.body2_heat_capacity_input.setMinimum(0.01)
         self.body2_heat_capacity_input.setValue(0.40)
+        self.body2_heat_capacity_input.setSuffix(" J/(kg·°C)")
         self.body2_heat_capacity_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.body2_heat_capacity_input.setButtonSymbols(
             QDoubleSpinBox.ButtonSymbols.NoButtons
@@ -379,19 +368,16 @@ class HeatTransfer(QWidget):
         body2_temperature_layout.setSpacing(8)
         body2_temperature_layout.addWidget(self.body2_temperature_label)
         body2_temperature_layout.addWidget(self.body2_temperature_display)
-        body2_temperature_layout.addWidget(self.body2_temperature_unit)
 
         body2_mass_layout = QHBoxLayout()
         body2_mass_layout.setSpacing(8)
         body2_mass_layout.addWidget(self.body2_mass_label)
         body2_mass_layout.addWidget(self.body2_mass_input)
-        body2_mass_layout.addWidget(self.body2_mass_unit)
 
         body2_heat_capacity_layout = QHBoxLayout()
         body2_heat_capacity_layout.setSpacing(8)
         body2_heat_capacity_layout.addWidget(self.body2_heat_capacity_label)
         body2_heat_capacity_layout.addWidget(self.body2_heat_capacity_input)
-        body2_heat_capacity_layout.addWidget(self.body2_heat_capacity_unit)
 
         body2_layout = QVBoxLayout()
         body2_layout.setSpacing(10)
@@ -428,12 +414,15 @@ class HeatTransfer(QWidget):
 
     # עדכון הטמפרטורה והצבע של הגוף השמאלי
     def left_temperature_changed(self, temperature):
-        self.body1_temperature_display.setText(f"{temperature:.2f}")
+        self.body1_temperature = temperature
+        self.body1_temperature_display.setText(f"{temperature:.2f} °C")
         red = int(temperature / 200 * 255)
         self.body1_visual.setStyleSheet(f"background-color: rgb({red}, 0, 0);")
 
+    # עדכון הטמפרטורה והצבע של הגוף הימני
     def right_temperature_changed(self, temperature):
-        self.body2_temperature_display.setText(f"{temperature:.2f}")
+        self.body2_temperature = temperature
+        self.body2_temperature_display.setText(f"{temperature:.2f} °C")
         red = int(temperature / 200 * 255)
         self.body2_visual.setStyleSheet(f"background-color: rgb({red}, 0, 0);")
 
@@ -445,8 +434,8 @@ class HeatTransfer(QWidget):
             self.simulation_time_title.setText("Simulation Time")
             self.simulation_time_display.setText("0.0 s")
             
-            self.body1 = Body(self.body1_mass_input.value(), self.body1_heat_capacity_input.value(), self.body1_temperature_slider.value())
-            self.body2 = Body(self.body2_mass_input.value(), self.body2_heat_capacity_input.value(), self.body2_temperature_slider.value())
+            self.body1 = Body(self.body1_mass_input.value(), self.body1_heat_capacity_input.value(), self.body1_temperature)
+            self.body2 = Body(self.body2_mass_input.value(), self.body2_heat_capacity_input.value(), self.body2_temperature)
 
             self.conductance = self.conductance_input.value()
 
@@ -474,8 +463,19 @@ class HeatTransfer(QWidget):
 
             self.conductance_input.setEnabled(False)
 
+            # חישוב קיבול החום הכולל של כל גוף
+            c1 = self.body1.mass * self.body1.heat_capacity
+            c2 = self.body2.mass * self.body2.heat_capacity
+            
+            max_dt = (c1 * c2) / (self.conductance * (c1 + c2)) # חישוב צעד הזמן המרבי
+            
+            self.dt = 0.1 # התאמת צעד הזמן לנתוני הסימולציה
+            
+            if self.dt > max_dt:
+                self.dt = max_dt
+
             self.timer.start(100)
-        
+
         else:  # עצירת הסימולציה
             self.timer.stop()
             self.start_button.setText("Start")
@@ -494,17 +494,6 @@ class HeatTransfer(QWidget):
             self.body2_heat_capacity_input.setEnabled(True)
 
             self.conductance_input.setEnabled(True)
-
-        # חישוב קיבול החום הכולל של כל גוף
-        c1 = self.body1.mass * self.body1.heat_capacity
-        c2 = self.body2.mass * self.body2.heat_capacity
-
-        max_dt = (c1 * c2) / (self.conductance * (c1 + c2)) # חישוב צעד הזמן המרבי
-
-        self.dt = 0.1 # התאמת צעד הזמן לנתוני הסימולציה
-
-        if self.dt > max_dt:
-                self.dt = max_dt
 
     def timer_method(self):
         t1 = self.body1.temperature
