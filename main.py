@@ -62,13 +62,17 @@ class HeatTransfer(QWidget):
         self.time_history = []
         self.body1_temp_history = []
         self.body2_temp_history = []
+        self.body1_heating_power_history = []
+        self.body2_heating_power_history = []
+        self.heating_power1_variable = False
+        self.heating_power2_variable = False
         self.simulation_history = []
 
     # בניית ממשק המשתמש
     def setupUI(self):
         self.setObjectName("mainWindow")
         self.setWindowTitle("Heat Transfer Simulation")
-        self.resize(1110, 750)
+        self.resize(1110, 775)
 
         # יצירת כרטיס הכותרת העליון וכפתור אודות
         self.header_card = QWidget()
@@ -390,6 +394,37 @@ class HeatTransfer(QWidget):
             QDoubleSpinBox.ButtonSymbols.NoButtons
         )
 
+        # יצירת סליידר אופקי להספק החימום של הגוף הראשון ותוויות טווח
+        self.body1_heating_power_slider = QSlider(Qt.Orientation.Horizontal)
+        self.body1_heating_power_slider.setObjectName("heatingPowerSlider")
+        self.body1_heating_power_slider.setFixedSize(160, 18)
+        self.body1_heating_power_slider.setRange(0, 1000)
+        self.body1_heating_power_slider.setSingleStep(1)
+        self.body1_heating_power_slider.setValue(0)
+
+        body1_power_min_label = QLabel("0 W")
+        body1_power_min_label.setObjectName("sliderRangeLabel")
+        body1_power_max_label = QLabel("1000 W")
+        body1_power_max_label.setObjectName("sliderRangeLabel")
+
+        body1_power_range_layout = QHBoxLayout()
+        body1_power_range_layout.setContentsMargins(0, 0, 0, 0)
+        body1_power_range_layout.addWidget(body1_power_min_label)
+        body1_power_range_layout.addStretch()
+        body1_power_range_layout.addWidget(body1_power_max_label)
+
+        body1_power_control_layout = QVBoxLayout()
+        body1_power_control_layout.setContentsMargins(0, 0, 0, 0)
+        body1_power_control_layout.setSpacing(2)
+        body1_power_control_layout.addWidget(self.body1_heating_power_input)
+        body1_power_control_layout.addWidget(self.body1_heating_power_slider)
+        body1_power_control_layout.addLayout(body1_power_range_layout)
+
+        body1_power_label_layout = QVBoxLayout()
+        body1_power_label_layout.setContentsMargins(0, 0, 0, 0)
+        body1_power_label_layout.addWidget(self.body1_heating_power_label)
+        body1_power_label_layout.addStretch()
+
         # סידור שורות הנתונים של הגוף הראשון בתוך הכרטיס
         body1_material_layout = QHBoxLayout()
         body1_material_layout.setSpacing(10)
@@ -419,8 +454,8 @@ class HeatTransfer(QWidget):
 
         body1_heating_power_layout = QHBoxLayout()
         body1_heating_power_layout.setSpacing(10)
-        body1_heating_power_layout.addWidget(self.body1_heating_power_label)
-        body1_heating_power_layout.addWidget(self.body1_heating_power_input)
+        body1_heating_power_layout.addLayout(body1_power_label_layout)
+        body1_heating_power_layout.addLayout(body1_power_control_layout)
 
         body1_layout = QVBoxLayout()
         body1_layout.setContentsMargins(16, 14, 16, 16)
@@ -643,6 +678,37 @@ class HeatTransfer(QWidget):
             QDoubleSpinBox.ButtonSymbols.NoButtons
         )
 
+        # יצירת סליידר אופקי להספק החימום של הגוף השני ותוויות טווח
+        self.body2_heating_power_slider = QSlider(Qt.Orientation.Horizontal)
+        self.body2_heating_power_slider.setObjectName("heatingPowerSlider")
+        self.body2_heating_power_slider.setFixedSize(160, 18)
+        self.body2_heating_power_slider.setRange(0, 1000)
+        self.body2_heating_power_slider.setSingleStep(1)
+        self.body2_heating_power_slider.setValue(0)
+
+        body2_power_min_label = QLabel("0 W")
+        body2_power_min_label.setObjectName("sliderRangeLabel")
+        body2_power_max_label = QLabel("1000 W")
+        body2_power_max_label.setObjectName("sliderRangeLabel")
+
+        body2_power_range_layout = QHBoxLayout()
+        body2_power_range_layout.setContentsMargins(0, 0, 0, 0)
+        body2_power_range_layout.addWidget(body2_power_min_label)
+        body2_power_range_layout.addStretch()
+        body2_power_range_layout.addWidget(body2_power_max_label)
+
+        body2_power_control_layout = QVBoxLayout()
+        body2_power_control_layout.setContentsMargins(0, 0, 0, 0)
+        body2_power_control_layout.setSpacing(2)
+        body2_power_control_layout.addWidget(self.body2_heating_power_input)
+        body2_power_control_layout.addWidget(self.body2_heating_power_slider)
+        body2_power_control_layout.addLayout(body2_power_range_layout)
+
+        body2_power_label_layout = QVBoxLayout()
+        body2_power_label_layout.setContentsMargins(0, 0, 0, 0)
+        body2_power_label_layout.addWidget(self.body2_heating_power_label)
+        body2_power_label_layout.addStretch()
+
         # סידור שורות הנתונים של הגוף השני בתוך הכרטיס
         body2_material_layout = QHBoxLayout()
         body2_material_layout.setSpacing(10)
@@ -672,8 +738,8 @@ class HeatTransfer(QWidget):
 
         body2_heating_power_layout = QHBoxLayout()
         body2_heating_power_layout.setSpacing(10)
-        body2_heating_power_layout.addWidget(self.body2_heating_power_label)
-        body2_heating_power_layout.addWidget(self.body2_heating_power_input)
+        body2_heating_power_layout.addLayout(body2_power_label_layout)
+        body2_heating_power_layout.addLayout(body2_power_control_layout)
 
         body2_layout = QVBoxLayout()
         body2_layout.setContentsMargins(16, 14, 16, 16)
@@ -716,9 +782,19 @@ class HeatTransfer(QWidget):
         self.body1_heat_capacity_input.valueChanged.connect(self.update_start_button_state)
         self.body2_heat_capacity_input.valueChanged.connect(self.update_start_button_state)
 
-        # חיבור שדות הספק החימום לעדכון חיווי גופי החימום
-        self.body1_heating_power_input.valueChanged.connect(self.body1_heating_power_changed)
-        self.body2_heating_power_input.valueChanged.connect(self.body2_heating_power_changed)
+        # חיבור שדות וסליידרי הספק החימום לסנכרון דו-כיווני ועדכון המבערים
+        self.body1_heating_power_input.valueChanged.connect(
+            self.body1_heating_power_changed
+        )
+        self.body2_heating_power_input.valueChanged.connect(
+            self.body2_heating_power_changed
+        )
+        self.body1_heating_power_slider.valueChanged.connect(
+            self.body1_heating_slider_changed
+        )
+        self.body2_heating_power_slider.valueChanged.connect(
+            self.body2_heating_slider_changed
+        )
 
     # עדכון מהירות הסימולציה באמצעות שינוי מרווח הטיימר
     def simulation_speed_changed(self, speed):
@@ -726,13 +802,27 @@ class HeatTransfer(QWidget):
         if self.timer.isActive():
             self.timer.setInterval(self.timer_interval)
 
-    # עדכון הספק החימום המוגדר ברכיב המבער של הגוף הראשון
+    # סנכרון תיבת הקלט מהסליידר האופקי של הגוף הראשון
+    def body1_heating_slider_changed(self, value):
+        self.body1_heating_power_input.setValue(float(value))
+
+    # סנכרון תיבת הקלט מהסליידר האופקי של הגוף השני
+    def body2_heating_slider_changed(self, value):
+        self.body2_heating_power_input.setValue(float(value))
+
+    # עדכון הספק החימום וסנכרון הסליידר של הגוף הראשון ללא עיגול ערך עשרוני
     def body1_heating_power_changed(self, power):
         self.body1_heater.set_heating_power(power)
+        self.body1_heating_power_slider.blockSignals(True)
+        self.body1_heating_power_slider.setValue(int(round(power)))
+        self.body1_heating_power_slider.blockSignals(False)
 
-    # עדכון הספק החימום המוגדר ברכיב המבער של הגוף השני
+    # עדכון הספק החימום וסנכרון הסליידר של הגוף השני ללא עיגול ערך עשרוני
     def body2_heating_power_changed(self, power):
         self.body2_heater.set_heating_power(power)
+        self.body2_heating_power_slider.blockSignals(True)
+        self.body2_heating_power_slider.setValue(int(round(power)))
+        self.body2_heating_power_slider.blockSignals(False)
 
     # עדכון תצוגת קצב מעבר החום, קטגוריית העוצמה ורכיב האנימציה
     def update_heat_flow_display(self, q_rate, is_running):
@@ -863,9 +953,13 @@ class HeatTransfer(QWidget):
 
             self.conductance = self.conductance_input.value()
             
-            # שמירת הספקי החימום בתחילת הסימולציה
-            self.heating_power1 = self.body1_heating_power_input.value()
-            self.heating_power2 = self.body2_heating_power_input.value()
+            # שמירת הספקי החימום ההתחלתיים ואיפוס דגלי השינוי
+            self.initial_heating_power1 = self.body1_heating_power_input.value()
+            self.initial_heating_power2 = self.body2_heating_power_input.value()
+            self.heating_power1 = self.initial_heating_power1
+            self.heating_power2 = self.initial_heating_power2
+            self.heating_power1_variable = False
+            self.heating_power2_variable = False
 
             # שמירת שמות החומרים שנבחרו בתחילת הסימולציה
             self.body1_material = self.body1_material_selector.currentText()
@@ -881,6 +975,8 @@ class HeatTransfer(QWidget):
             self.time_history = []
             self.body1_temp_history = []
             self.body2_temp_history = []
+            self.body1_heating_power_history = []
+            self.body2_heating_power_history = []
 
             # שמירת נתוני ההתחלה של הסימולציה
             self.time_history.append(0.0)
@@ -899,9 +995,6 @@ class HeatTransfer(QWidget):
 
             self.body1_heat_capacity_input.setEnabled(False)
             self.body2_heat_capacity_input.setEnabled(False)
-
-            self.body1_heating_power_input.setEnabled(False)
-            self.body2_heating_power_input.setEnabled(False)
 
             self.conductance_input.setEnabled(False)
 
@@ -999,6 +1092,20 @@ class HeatTransfer(QWidget):
         t1 = self.body1.temperature
         t2 = self.body2.temperature
 
+        # קריאת הספקי החימום העדכניים לפני חישוב צעד הזמן
+        self.heating_power1 = self.body1_heating_power_input.value()
+        self.heating_power2 = self.body2_heating_power_input.value()
+
+        # סימון הספק משתנה אם חל שינוי ביחס לערך ההתחלתי (נשמר עד סיום הסימולציה)
+        if abs(self.heating_power1 - self.initial_heating_power1) > 1e-9:
+            self.heating_power1_variable = True
+        if abs(self.heating_power2 - self.initial_heating_power2) > 1e-9:
+            self.heating_power2_variable = True
+
+        # שמירת הספקי החימום שהופעלו במרווח הזמן הנוכחי
+        self.body1_heating_power_history.append(self.heating_power1)
+        self.body2_heating_power_history.append(self.heating_power2)
+
         # חישוב קצב מעבר החום כולל גופי החימום
         i1 = self.conductance * (t2 - t1) + self.heating_power1
         i2 = self.conductance * (t1 - t2) + self.heating_power2
@@ -1072,8 +1179,10 @@ class HeatTransfer(QWidget):
             "heat_capacity1": self.body1.heat_capacity,
             "heat_capacity2": self.body2.heat_capacity,
 
-            "heating_power1": self.heating_power1,
-            "heating_power2": self.heating_power2,
+            "heating_power1": self.initial_heating_power1,
+            "heating_power2": self.initial_heating_power2,
+            "heating_power1_variable": self.heating_power1_variable,
+            "heating_power2_variable": self.heating_power2_variable,
 
             "initial_temp1": self.body1_temp_history[0],
             "initial_temp2": self.body2_temp_history[0],
@@ -1082,7 +1191,9 @@ class HeatTransfer(QWidget):
 
             "time": self.time_history[:],
             "temperature1": self.body1_temp_history[:],
-            "temperature2": self.body2_temp_history[:]
+            "temperature2": self.body2_temp_history[:],
+            "heating_power1_history": self.body1_heating_power_history[:],
+            "heating_power2_history": self.body2_heating_power_history[:],
         }
 
         # הוספת הסימולציה להיסטוריה
@@ -1115,9 +1226,11 @@ class HeatTransfer(QWidget):
         self.body2_heat_capacity_input.setValue(0.40)
         self.update_start_button_state()
 
-        # איפוס הספקי החימום וחיווי גופי החימום
+        # איפוס הספקי החימום, הסליידרים וחיווי גופי החימום
         self.body1_heating_power_input.setValue(0.0)
         self.body2_heating_power_input.setValue(0.0)
+        self.body1_heating_power_slider.setValue(0)
+        self.body2_heating_power_slider.setValue(0)
         self.body1_heating_power_changed(0.0)
         self.body2_heating_power_changed(0.0)
 

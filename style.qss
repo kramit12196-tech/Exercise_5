@@ -253,6 +253,32 @@
     border-radius: 9px;
 }
 
+/* סליידרים אופקיים להספק החימום */
+#mainWindow QSlider#heatingPowerSlider::groove:horizontal {
+    background-color: #E2E8F0;
+    height: 6px;
+    border-radius: 3px;
+}
+
+#mainWindow QSlider#heatingPowerSlider::sub-page:horizontal {
+    background-color: #2871B8;
+    border-radius: 3px;
+}
+
+#mainWindow QSlider#heatingPowerSlider::handle:horizontal {
+    background-color: #2871B8;
+    border: 2px solid #FFFFFF;
+    width: 14px;
+    height: 14px;
+    margin: -5px 0px;
+    border-radius: 8px;
+}
+
+#mainWindow QLabel#sliderRangeLabel {
+    color: #64748B;
+    font-size: 10px;
+}
+
 #mainWindow QSlider::handle:vertical:hover {
     background-color: #2364A3;
 }
@@ -520,6 +546,15 @@
     background-color: transparent;
     color: #23364D;
     font-size: 13px;
+    padding: 0px;
+    border-bottom: 2px solid #94A3B8;
+}
+
+#graphWindow QLabel#tableSeparatorValueVariable {
+    background-color: transparent;
+    color: #B45309;
+    font-size: 13px;
+    font-weight: 600;
     padding: 0px;
     border-bottom: 2px solid #94A3B8;
 }

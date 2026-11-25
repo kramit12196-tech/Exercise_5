@@ -5,6 +5,7 @@ from matplotlib.backends.backend_qtagg import (
 )
 from matplotlib.figure import Figure
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QFont
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -875,6 +876,21 @@ class GraphWindow(QWidget):
             column = i + 2
             self.parameters_table.setColumnWidth(column, 135)
 
+            # בדיקת הספק חימום משתנה עבור כל גוף בנפרד עם תמיכה בסימולציות קודמות
+            is_power1_variable = simulation.get("heating_power1_variable", False)
+            is_power2_variable = simulation.get("heating_power2_variable", False)
+
+            power1_text = (
+                "Variable"
+                if is_power1_variable
+                else f"{simulation['heating_power1']:.2f}"
+            )
+            power2_text = (
+                "Variable"
+                if is_power2_variable
+                else f"{simulation['heating_power2']:.2f}"
+            )
+
             values = [
                 f"{simulation['conductance']:.2f}",
                 f"{simulation['duration']:.2f}",
@@ -882,29 +898,45 @@ class GraphWindow(QWidget):
                 f"{simulation['initial_temp1']:.2f}",
                 f"{simulation['mass1']:.2f}",
                 f"{simulation['heat_capacity1']:.2f}",
-                f"{simulation['heating_power1']:.2f}",
+                power1_text,
                 simulation["material2"],
                 f"{simulation['initial_temp2']:.2f}",
                 f"{simulation['mass2']:.2f}",
                 f"{simulation['heat_capacity2']:.2f}",
-                f"{simulation['heating_power2']:.2f}",
+                power2_text,
             ]
 
             for row in range(len(values)):
                 if row == 1 or row == 6:
-                    existing_label = self.parameters_table.cellWidget(row, column)
+                    target_name = (
+                        "tableSeparatorValueVariable"
+                        if row == 6 and is_power1_variable
+                        else "tableSeparatorValue"
+                    )
+                    existing_label = self.parameters_table.cellWidget(
+                        row, column
+                    )
                     if existing_label is None:
                         value_label = QLabel(values[row])
-                        value_label.setObjectName("tableSeparatorValue")
+                        value_label.setObjectName(target_name)
                         value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
                         self.parameters_table.setCellWidget(
                             row, column, value_label
                         )
                     else:
                         existing_label.setText(values[row])
+                        if existing_label.objectName() != target_name:
+                            existing_label.setObjectName(target_name)
+                            existing_label.style().unpolish(existing_label)
+                            existing_label.style().polish(existing_label)
                 else:
                     item = QTableWidgetItem(values[row])
                     item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                    if row == 11 and is_power2_variable:
+                        item.setForeground(QColor("#B45309"))
+                        font = item.font()
+                        font.setWeight(QFont.Weight.DemiBold)
+                        item.setFont(font)
                     self.parameters_table.setItem(row, column, item)
 
     # הצגה או הסתרה של טבלת פרמטרי הסימולציה באותו חלון
